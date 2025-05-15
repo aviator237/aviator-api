@@ -1,0 +1,31 @@
+import { TimestampEntities } from "generics/timestamp.entities";
+import { AuthLoginEntity } from "src/auth/entities/auth-login.entity";
+import { UserLangEnum } from "src/enum/user-lang.enum";
+import { UserRoleEnum } from "src/enum/user-role.enum";
+import { PaymentEntity } from "src/payment/entities/payment.entity";
+import { PlayerBetEntity } from "src/player-bet/entities/player-bet.entity";
+export declare class UserEntity extends TimestampEntities {
+    id: string;
+    userName: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: UserRoleEnum;
+    lang: UserLangEnum;
+    isActive: boolean;
+    isBlocked: boolean;
+    notchRecipientId: string;
+    password: string;
+    salt: string;
+    phoneNumber: string;
+    notificationId: string;
+    referalCode: string;
+    lastLogin: Date;
+    isOnline: boolean;
+    walletAmount: number;
+    godfather: UserEntity;
+    goddaughters: UserEntity[];
+    payments: PaymentEntity[];
+    bets: PlayerBetEntity[];
+    authLogin: AuthLoginEntity;
+}
