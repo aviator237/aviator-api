@@ -49,15 +49,15 @@ export class GameRoundService {
     gameRound = await this.gameRoundRepository.save(gameRound);
     await this.socketService.sendStartRound(gameRound);
     this.socketService.sendRoundPlayers(gameRound.players);
-    const maxCount = (Math.floor(Math.random() * 50) + 1) * 100;
+    const maxCount = (Math.floor(Math.random() * 100) + 1) * 10;
     console.log("maxCount: ", maxCount)
     for (let i = 0; i < maxCount; i++) {
       gameRound.currentPercent += 0.01;
       gameRound.currentPercent = parseFloat(gameRound.currentPercent.toFixed(2));
       await this.socketService.sendRoundCurrentPercent(gameRound.currentPercent);
       PlayerBetService.currentPercent = gameRound.currentPercent;
-      console.log(PlayerBetService.currentPercent);
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // console.log(PlayerBetService.currentPercent);
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
     PlayerBetService.currentPercent = 0;
     gameRound.isActive = false;
