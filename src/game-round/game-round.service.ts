@@ -29,7 +29,7 @@ export class GameRoundService {
 
     setTimeout(() => {
       this.startPlaying(gameRound.id);
-    }, 10000);
+    }, 5000);
     return gameRound;
   }
 
@@ -52,12 +52,12 @@ export class GameRoundService {
     const maxCount = Math.floor(Math.random() * 50) + 1;
     console.log("maxCount: ", maxCount)
     for (let i = 0; i < maxCount; i++) {
-      gameRound.currentPercent += 0.1;
+      gameRound.currentPercent += 0.01;
       gameRound.currentPercent = parseFloat(gameRound.currentPercent.toFixed(2));
       await this.socketService.sendRoundCurrentPercent(gameRound.currentPercent);
       PlayerBetService.currentPercent = gameRound.currentPercent;
       console.log(PlayerBetService.currentPercent);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 50));
     }
     PlayerBetService.currentPercent = 0;
     gameRound.isActive = false;
