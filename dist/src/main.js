@@ -15,7 +15,7 @@ async function bootstrap() {
     const configService = app.get(config_1.ConfigService);
     app.use(bodyParser.json({ limit: '50mb' }));
     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-    if (configService.get("NODE_ENV") !== "production") {
+    if (configService.get("NODE_ENV") == "production") {
         const redisIoAdapter = new redis_io_adapter_1.RedisIoAdapter(app);
         await redisIoAdapter.connectToRedis();
         app.useWebSocketAdapter(redisIoAdapter);
