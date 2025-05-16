@@ -8,6 +8,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 class RedisIoAdapter extends platform_socket_io_1.IoAdapter {
     async connectToRedis() {
+        console.log(process.env.MY_REDIS_SERVER_URL);
         const pubClient = (0, redis_1.createClient)({ url: process.env.MY_REDIS_SERVER_URL });
         const subClient = pubClient.duplicate();
         await Promise.all([pubClient.connect(), subClient.connect()]);

@@ -16,7 +16,9 @@ export class GameRoundService {
     private readonly socketService: SocketService,
     private readonly playerBetService: PlayerBetService,
   ) {
-    this.createNewRound();
+    setTimeout(() => {
+      this.createNewRound();
+    }, 5000);
   }
 
   async createNewRound() {

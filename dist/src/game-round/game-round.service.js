@@ -25,7 +25,9 @@ let GameRoundService = class GameRoundService {
         this.gameRoundRepository = gameRoundRepository;
         this.socketService = socketService;
         this.playerBetService = playerBetService;
-        this.createNewRound();
+        setTimeout(() => {
+            this.createNewRound();
+        }, 5000);
     }
     async createNewRound() {
         var gameRound = new game_round_entity_1.GameRoundEntity();
