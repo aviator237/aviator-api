@@ -96,12 +96,10 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
         }
     }
     async handleUserStopBet(userId, roundId) {
-        console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
         const user = await this.userRepository.findOneBy({ id: userId });
         if (!user) {
             return false;
         }
-        console.log("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
         const round = await this.gameRoundRepository.findOne({ where: { id: roundId }, relations: { players: { user: true } } });
         console.log(round);
         if (!round || round.status !== game_round_state_enum_1.GameRoundStateEnum.EN_COURS) {
@@ -119,6 +117,7 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
         await this.userRepository.save(user);
         player.status = bet_status_enum_1.BetStatus.GAGNE;
         player.winAmount = winAmount;
+        player.endPercent = PlayerBetService_1.currentPercent;
         this.socketService.sendWalletAmount(user.id, user.walletAmount);
         const newPlayer = await this.playerBetRepository.save(player);
         this.socketService.sendBetStop(user.id, newPlayer);
@@ -158,6 +157,9 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
             },
             relations: { user: true }
         });
+    }
+    async updatePlayerStatus(player) {
+        return await this.playerBetRepository.save(player);
     }
 };
 exports.PlayerBetService = PlayerBetService;

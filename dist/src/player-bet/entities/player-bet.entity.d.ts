@@ -6,6 +6,7 @@ export declare class PlayerBetEntity extends TimestampEntities {
     id: number;
     amount: number;
     winAmount: number;
+    endPercent: number;
     reference: string;
     status: BetStatus;
     autoCashoutValue: number;

@@ -25,4 +25,5 @@ export declare class PlayerBetService {
     static clearAutoCheckoutPlayersForRound(gameRoundId: number): void;
     processAutoCheckouts(gameRoundId: number, currentMultiplier: number): Promise<void>;
     getActivePlayersWithAutoCashout(gameRoundId: number): Promise<PlayerBetEntity[]>;
+    updatePlayerStatus(player: PlayerBetEntity): Promise<PlayerBetEntity>;
 }

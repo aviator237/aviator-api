@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { SocketService } from 'src/socket/socket.service';
 import { GameRoundStateEnum } from 'src/enum/game-round-state.enum';
 import { PlayerBetService } from 'src/player-bet/player-bet.service';
+import { BetStatus } from 'src/enum/bet-status.enum';
+import { PlayerBetEntity } from 'src/player-bet/entities/player-bet.entity';
 
 @Injectable()
 export class GameRoundService {
@@ -76,6 +78,17 @@ export class GameRoundService {
 
       await new Promise(resolve => setTimeout(resolve, 100));
     }
+    // Mettre à jour les joueurs qui n'ont pas encaissé (perdants)
+    if (gameRound.players && gameRound.players.length > 0) {
+      const activePlayers = gameRound.players.filter(player => player.status === BetStatus.MISE);
+      for (const player of activePlayers) {
+        player.status = BetStatus.PERDUE;
+        player.endPercent = gameRound.currentPercent;
+        // Utiliser une méthode publique pour mettre à jour les joueurs perdants
+        await this.updateLosingPlayer(player);
+      }
+    }
+
     PlayerBetService.currentPercent = 0;
     gameRound.isActive = false;
     gameRound.status = GameRoundStateEnum.TERMINE;
@@ -121,6 +134,21 @@ export class GameRoundService {
         });
     } catch (error) {
       console.error('Erreur lors de la vérification des cashouts automatiques:', error);
+    }
+  }
+
+  /**
+   * Met à jour un joueur qui a perdu (n'a pas encaissé avant la fin du tour)
+   * @param player - Le joueur à mettre à jour
+   */
+  private async updateLosingPlayer(player: PlayerBetEntity) {
+    try {
+      // Utiliser le service PlayerBet pour mettre à jour le joueur
+      const updatedPlayer = await this.playerBetService.updatePlayerStatus(player);
+      // Envoyer la mise à jour aux clients
+      this.socketService.sendPlayerUpdate(updatedPlayer);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du joueur perdant:', error);
     }
   }
 }

@@ -15,4 +15,5 @@ export declare class GameRoundService {
     update(id: number, updateGameRoundDto: UpdateGameRoundDto): string;
     remove(id: number): string;
     private checkAutoCashouts;
+    private updateLosingPlayer;
 }

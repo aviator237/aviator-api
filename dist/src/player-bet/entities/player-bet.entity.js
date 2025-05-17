@@ -39,6 +39,14 @@ __decorate([
 ], PlayerBetEntity.prototype, "winAmount", void 0);
 __decorate([
     (0, typeorm_1.Column)({
+        nullable: true,
+        type: "float",
+        default: 0
+    }),
+    __metadata("design:type", Number)
+], PlayerBetEntity.prototype, "endPercent", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
         nullable: false,
     }),
     __metadata("design:type", String)

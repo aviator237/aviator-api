@@ -24,6 +24,12 @@ export class PlayerBetEntity extends TimestampEntities {
     })
     winAmount: number;
 
+    @Column({
+        nullable: true,
+        type: "float",
+        default: 0
+    })
+    endPercent: number;
 
     @Column({
         nullable: false,

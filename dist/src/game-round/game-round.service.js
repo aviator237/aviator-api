@@ -20,6 +20,7 @@ const typeorm_2 = require("typeorm");
 const socket_service_1 = require("../socket/socket.service");
 const game_round_state_enum_1 = require("../enum/game-round-state.enum");
 const player_bet_service_1 = require("../player-bet/player-bet.service");
+const bet_status_enum_1 = require("../enum/bet-status.enum");
 let GameRoundService = class GameRoundService {
     constructor(gameRoundRepository, socketService, playerBetService) {
         this.gameRoundRepository = gameRoundRepository;
@@ -71,6 +72,14 @@ let GameRoundService = class GameRoundService {
             this.checkAutoCashouts(gameRound);
             await new Promise(resolve => setTimeout(resolve, 100));
         }
+        if (gameRound.players && gameRound.players.length > 0) {
+            const activePlayers = gameRound.players.filter(player => player.status === bet_status_enum_1.BetStatus.MISE);
+            for (const player of activePlayers) {
+                player.status = bet_status_enum_1.BetStatus.PERDUE;
+                player.endPercent = gameRound.currentPercent;
+                await this.updateLosingPlayer(player);
+            }
+        }
         player_bet_service_1.PlayerBetService.currentPercent = 0;
         gameRound.isActive = false;
         gameRound.status = game_round_state_enum_1.GameRoundStateEnum.TERMINE;
@@ -101,6 +110,15 @@ let GameRoundService = class GameRoundService {
         }
         catch (error) {
             console.error('Erreur lors de la vérification des cashouts automatiques:', error);
+        }
+    }
+    async updateLosingPlayer(player) {
+        try {
+            const updatedPlayer = await this.playerBetService.updatePlayerStatus(player);
+            this.socketService.sendPlayerUpdate(updatedPlayer);
+        }
+        catch (error) {
+            console.error('Erreur lors de la mise à jour du joueur perdant:', error);
         }
     }
 };

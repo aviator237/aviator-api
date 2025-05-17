@@ -128,13 +128,11 @@ export class PlayerBetService {
 
 
   async handleUserStopBet(userId: string, roundId: number): Promise<boolean> {
-    console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
 
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       return false;
     }
-    console.log("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
 
     const round = await this.gameRoundRepository.findOne({ where: { id: roundId }, relations: { players: { user: true } } });
     console.log(round)
@@ -157,6 +155,8 @@ export class PlayerBetService {
     await this.userRepository.save(user);
     player.status = BetStatus.GAGNE;
     player.winAmount = winAmount;
+    // Enregistrer le pourcentage auquel le joueur a encaissé
+    player.endPercent = PlayerBetService.currentPercent;
     this.socketService.sendWalletAmount(user.id, user.walletAmount);
     const newPlayer: PlayerBetEntity = await this.playerBetRepository.save(player);
     this.socketService.sendBetStop(user.id, newPlayer);
@@ -235,5 +235,14 @@ export class PlayerBetService {
       },
       relations: { user: true }
     });
+  }
+
+  /**
+   * Met à jour le statut d'un joueur (utilisé pour les joueurs qui ont perdu)
+   * @param player - Le joueur à mettre à jour
+   * @returns Le joueur mis à jour
+   */
+  async updatePlayerStatus(player: PlayerBetEntity): Promise<PlayerBetEntity> {
+    return await this.playerBetRepository.save(player);
   }
 }
