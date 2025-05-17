@@ -7,7 +7,7 @@ export class ChangePasswordDto {
 
     @IsNotEmpty()
     @IsString()
-    @MinLength(6, { message: 'Le nouveau mot de passe doit contenir au moins 6 caractères' })
+    // @MinLength(6, { message: 'Le nouveau mot de passe doit contenir au moins 6 caractères' })
     newPassword: string;
 
     @IsNotEmpty()

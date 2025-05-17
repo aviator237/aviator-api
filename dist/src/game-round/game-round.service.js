@@ -61,7 +61,7 @@ let GameRoundService = class GameRoundService {
         gameRound = await this.gameRoundRepository.save(gameRound);
         await this.socketService.sendStartRound(gameRound);
         this.socketService.sendRoundPlayers(gameRound.players);
-        const maxCount = (Math.floor(Math.random() * 100) + 1) * 10;
+        const maxCount = (Math.floor(Math.random() * 50) + 1) * 10;
         console.log("maxCount: ", maxCount);
         for (let i = 0; i < maxCount; i++) {
             gameRound.currentPercent += 0.01;
