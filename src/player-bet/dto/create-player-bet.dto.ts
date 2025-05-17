@@ -21,6 +21,11 @@ export class CreatePlayerBetDto {
     amount: number;
 
     @IsOptional()
+    @IsNumber()
+    @Min(1)
+    autoCashoutValue?: number;
+
+    @IsOptional()
     user: UserEntity;
 
 }

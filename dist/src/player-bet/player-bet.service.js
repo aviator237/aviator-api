@@ -41,19 +41,39 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
         if (!user) {
             return false;
         }
-        createPlayerBetDto.user = user;
-        if (round.status !== game_round_state_enum_1.GameRoundStateEnum.INITIALISE) {
-            PlayerBetService_1.waitingPlayers.push(createPlayerBetDto);
-            this.socketService.sendBetWait(createPlayerBetDto.userId, createPlayerBetDto.reference);
+        if (user.walletAmount < createPlayerBetDto.amount) {
+            this.socketService.sendBetDenied(createPlayerBetDto.userId, createPlayerBetDto.reference);
             return false;
         }
-        if (user.walletAmount < createPlayerBetDto.amount) {
+        createPlayerBetDto.user = user;
+        if (round.status !== game_round_state_enum_1.GameRoundStateEnum.INITIALISE) {
+            user.walletAmount -= createPlayerBetDto.amount;
+            await this.userRepository.save(user);
+            this.socketService.sendWalletAmount(user.id, user.walletAmount);
+            PlayerBetService_1.waitingPlayers.push(createPlayerBetDto);
+            this.socketService.sendBetWait(createPlayerBetDto.userId, createPlayerBetDto.reference);
             return false;
         }
         user.walletAmount -= createPlayerBetDto.amount;
         await this.userRepository.save(user);
         this.socketService.sendWalletAmount(user.id, user.walletAmount);
-        const playerBet = await this.playerBetRepository.save(createPlayerBetDto);
+        const playerBet = new player_bet_entity_1.PlayerBetEntity();
+        playerBet.amount = createPlayerBetDto.amount;
+        playerBet.reference = createPlayerBetDto.reference;
+        playerBet.user = user;
+        playerBet.gameRound = round;
+        if (createPlayerBetDto.autoCashoutValue) {
+            playerBet.autoCashoutValue = createPlayerBetDto.autoCashoutValue;
+        }
+        const savedBet = await this.playerBetRepository.save(playerBet);
+        if (createPlayerBetDto.autoCashoutValue) {
+            PlayerBetService_1.autoCheckoutPlayers.push({
+                userId: user.id,
+                roundId: round.id,
+                autoCashoutValue: createPlayerBetDto.autoCashoutValue,
+                betId: savedBet.id
+            });
+        }
         this.socketService.sendBetAccepted(createPlayerBetDto.userId, createPlayerBetDto.reference);
         round.players.push(playerBet);
         await this.gameRoundRepository.save(round);
@@ -63,6 +83,12 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
         for (let index = 0; index < PlayerBetService_1.waitingPlayers.length; index++) {
             const element = PlayerBetService_1.waitingPlayers[index];
             if (element.reference === reference) {
+                const user = await this.userRepository.findOneBy({ id: userId });
+                if (user) {
+                    user.walletAmount += element.amount;
+                    await this.userRepository.save(user);
+                    this.socketService.sendWalletAmount(user.id, user.walletAmount);
+                }
                 PlayerBetService_1.waitingPlayers.splice(index, 1);
                 this.socketService.sendWaitingBetStop(userId, reference);
                 break;
@@ -99,10 +125,45 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
         this.socketService.sendPlayerUpdate(newPlayer);
         return true;
     }
+    async getUserBetHistory(userId, page, count) {
+        return await this.playerBetRepository.find({
+            where: { user: { id: userId } },
+            relations: { gameRound: true, user: true },
+            order: { createAt: "DESC" },
+            skip: page * count,
+            take: count
+        });
+    }
+    static clearAutoCheckoutPlayersForRound(gameRoundId) {
+        PlayerBetService_1.autoCheckoutPlayers = PlayerBetService_1.autoCheckoutPlayers.filter(player => player.roundId !== gameRoundId);
+    }
+    async processAutoCheckouts(gameRoundId, currentMultiplier) {
+        const playersToCheckout = PlayerBetService_1.autoCheckoutPlayers.filter(player => player.roundId === gameRoundId && player.autoCashoutValue <= currentMultiplier);
+        for (const player of playersToCheckout) {
+            this.handleUserStopBet(player.userId, player.roundId).catch(error => {
+                console.error(`Erreur lors du cashout automatique pour l'utilisateur ${player.userId}:`, error);
+            });
+            const index = PlayerBetService_1.autoCheckoutPlayers.findIndex(p => p.userId === player.userId && p.roundId === player.roundId);
+            if (index !== -1) {
+                PlayerBetService_1.autoCheckoutPlayers.splice(index, 1);
+            }
+        }
+    }
+    async getActivePlayersWithAutoCashout(gameRoundId) {
+        return await this.playerBetRepository.find({
+            where: {
+                gameRound: { id: gameRoundId },
+                status: bet_status_enum_1.BetStatus.MISE,
+                autoCashoutValue: (0, typeorm_2.Not)((0, typeorm_2.IsNull)())
+            },
+            relations: { user: true }
+        });
+    }
 };
 exports.PlayerBetService = PlayerBetService;
 PlayerBetService.currentPercent = 1;
 PlayerBetService.waitingPlayers = [];
+PlayerBetService.autoCheckoutPlayers = [];
 exports.PlayerBetService = PlayerBetService = PlayerBetService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(player_bet_entity_1.PlayerBetEntity)),

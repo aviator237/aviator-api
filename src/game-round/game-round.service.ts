@@ -36,12 +36,26 @@ export class GameRoundService {
 
   private async startPlaying(gameRoundId: number) {
     console.log("startPlaying...........................................");
-    if (PlayerBetService.waitingPlayers) {
-      PlayerBetService.waitingPlayers.forEach((playerDto) => {
-        playerDto.roundId = gameRoundId;
-        this.playerBetService.handleUserBet(playerDto);
-      });
+
+    // Traiter les mises en attente
+    if (PlayerBetService.waitingPlayers && PlayerBetService.waitingPlayers.length > 0) {
+      console.log(`Traitement de ${PlayerBetService.waitingPlayers.length} mises en attente`);
+
+      // Créer une copie de la liste pour éviter les problèmes de modification pendant l'itération
+      const waitingPlayersCopy = [...PlayerBetService.waitingPlayers];
+
+      // Vider la liste d'attente immédiatement
       PlayerBetService.waitingPlayers = [];
+
+      // Traiter chaque mise en attente de manière asynchrone
+      for (const playerDto of waitingPlayersCopy) {
+        try {
+          playerDto.roundId = gameRoundId;
+          await this.playerBetService.handleUserBet(playerDto);
+        } catch (error) {
+          console.error(`Erreur lors du traitement de la mise en attente: ${error}`);
+        }
+      }
     }
     var gameRound = await this.gameRoundRepository.findOne({ where: { id: gameRoundId }, relations: { players: true } });
     gameRound.isActive = true;
@@ -56,13 +70,20 @@ export class GameRoundService {
       gameRound.currentPercent = parseFloat(gameRound.currentPercent.toFixed(2));
       await this.socketService.sendRoundCurrentPercent(gameRound.currentPercent);
       PlayerBetService.currentPercent = gameRound.currentPercent;
-      // console.log(PlayerBetService.currentPercent);
+
+      // Vérifier les cashouts automatiques
+      this.checkAutoCashouts(gameRound);
+
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     PlayerBetService.currentPercent = 0;
     gameRound.isActive = false;
     gameRound.status = GameRoundStateEnum.TERMINE;
     gameRound = await this.gameRoundRepository.save(gameRound);
+
+    // Nettoyer la liste des auto-cashouts pour ce tour
+    PlayerBetService.clearAutoCheckoutPlayersForRound(gameRound.id);
+
     await this.socketService.sendEndRound(gameRound);
     this.createNewRound();
     return gameRound;
@@ -84,5 +105,22 @@ export class GameRoundService {
 
   remove(id: number) {
     return `This action removes a #${id} gameRound`;
+  }
+
+  /**
+   * Vérifie si des joueurs ont atteint leur multiplicateur cible pour le cashout automatique
+   * @param gameRound - Le tour de jeu en cours
+   */
+  private async checkAutoCashouts(gameRound: GameRoundEntity) {
+    try {
+      // Utiliser la nouvelle méthode processAutoCheckouts qui utilise la liste en mémoire
+      // Cette méthode est asynchrone mais nous ne l'attendons pas pour ne pas bloquer la boucle principale
+      this.playerBetService.processAutoCheckouts(gameRound.id, gameRound.currentPercent)
+        .catch(error => {
+          console.error('Erreur lors du traitement des cashouts automatiques:', error);
+        });
+    } catch (error) {
+      console.error('Erreur lors de la vérification des cashouts automatiques:', error);
+    }
   }
 }

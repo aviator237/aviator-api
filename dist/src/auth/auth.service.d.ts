@@ -39,6 +39,7 @@ export declare class AuthService {
             referalCode: string;
             lastLogin: Date;
             isOnline: boolean;
+            isLoggedOut: boolean;
             walletAmount: number;
             godfather: UserEntity;
             goddaughters: UserEntity[];
@@ -62,6 +63,10 @@ export declare class AuthService {
     refreshTokens(user: UserEntity): Promise<{
         access_token: string;
         refresh_token: string;
+    }>;
+    logout(user: UserEntity): Promise<{
+        status: string;
+        message: string;
     }>;
     resetPassword(user: UserEntity, newPassword: string): Promise<{
         status: string;

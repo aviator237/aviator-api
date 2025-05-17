@@ -53,6 +53,14 @@ __decorate([
     __metadata("design:type", String)
 ], PlayerBetEntity.prototype, "status", void 0);
 __decorate([
+    (0, typeorm_1.Column)({
+        nullable: true,
+        type: "float",
+        default: null
+    }),
+    __metadata("design:type", Number)
+], PlayerBetEntity.prototype, "autoCashoutValue", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => game_round_entity_1.GameRoundEntity, (gameRound) => gameRound.players),
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", game_round_entity_1.GameRoundEntity)

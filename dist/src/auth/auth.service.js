@@ -90,6 +90,7 @@ let AuthService = class AuthService {
                                 role: user.role
                             };
                             user.lastLogin = new Date();
+                            user.isLoggedOut = false;
                             const [accessToken, refreshToken] = await this.getTokens(payload);
                             this.userRepository.save(user);
                             const { password } = user, rest = __rest(user, ["password"]);
@@ -168,6 +169,19 @@ let AuthService = class AuthService {
             "access_token": accessToken,
             "refresh_token": refreshToken
         };
+    }
+    async logout(user) {
+        try {
+            user.isLoggedOut = true;
+            await this.userRepository.save(user);
+            return {
+                "status": "success",
+                "message": "Déconnexion réussie"
+            };
+        }
+        catch (error) {
+            throw new common_1.BadRequestException("Erreur lors de la déconnexion");
+        }
     }
     async resetPassword(user, newPassword) {
         try {

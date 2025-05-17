@@ -4,5 +4,6 @@ export declare class CreatePlayerBetDto {
     userId: string;
     roundId: number;
     amount: number;
+    autoCashoutValue?: number;
     user: UserEntity;
 }

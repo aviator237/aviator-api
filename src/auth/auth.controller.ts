@@ -47,5 +47,12 @@ export class AuthController {
         return await this.authService.refreshTokens(user);
     }
 
+    // Controller qui gère la déconnexion des utilisateurs
+    @Post("logout")
+    async logout(
+        @User() user: UserEntity,
+    ) {
+        return await this.authService.logout(user);
+    }
 
 }

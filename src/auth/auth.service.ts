@@ -102,6 +102,7 @@ export class AuthService {
                                 role: user.role
                             };
                             user.lastLogin = new Date();
+                            user.isLoggedOut = false; // Réinitialiser le statut de déconnexion
                             const [accessToken, refreshToken] = await this.getTokens(payload)
 
                             this.userRepository.save(user);
@@ -189,6 +190,21 @@ export class AuthService {
             "access_token": accessToken,
             "refresh_token": refreshToken
         };
+    }
+
+    async logout(user: UserEntity) {
+        try {
+            // Mettre à jour le statut de déconnexion de l'utilisateur
+            user.isLoggedOut = true;
+            await this.userRepository.save(user);
+
+            return {
+                "status": "success",
+                "message": "Déconnexion réussie"
+            };
+        } catch (error) {
+            throw new BadRequestException("Erreur lors de la déconnexion");
+        }
     }
 
     async resetPassword(user: UserEntity, newPassword: string) {

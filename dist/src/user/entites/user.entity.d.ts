@@ -22,6 +22,7 @@ export declare class UserEntity extends TimestampEntities {
     referalCode: string;
     lastLogin: Date;
     isOnline: boolean;
+    isLoggedOut: boolean;
     walletAmount: number;
     godfather: UserEntity;
     goddaughters: UserEntity[];

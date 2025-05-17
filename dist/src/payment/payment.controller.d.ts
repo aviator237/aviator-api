@@ -6,7 +6,7 @@ import { PaymentEntity } from './entities/payment.entity';
 export declare class PaymentController {
     private readonly paymentService;
     constructor(paymentService: PaymentService);
-    create(createPaymentDto: CreatePaymentDto, user: UserEntity): Promise<{
+    createPayment(createPaymentDto: CreatePaymentDto, user: UserEntity): Promise<{
         result: any;
         reference: any;
     }>;
@@ -18,6 +18,5 @@ export declare class PaymentController {
     }>;
     findAll(page: number, count: number): Promise<PaymentEntity[]>;
     getUserPayment(page: number, count: number, user: UserEntity): Promise<PaymentEntity[]>;
-    getReservationAmount(): number;
     findOne(id: number): Promise<PaymentEntity>;
 }

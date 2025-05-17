@@ -19,10 +19,10 @@ export class PaymentController {
   @Roles(UserRoleEnum.USER, UserRoleEnum.SUPER_ADMIN)
   @UseGuards(RolesGuard)
   @Post()
-  async create(
+  async createPayment(
     @Body() createPaymentDto: CreatePaymentDto,
     @User() user: UserEntity
-  ) {
+  ) {   
     return await this.paymentService.createPayment(createPaymentDto, user);
   }
 
@@ -67,12 +67,12 @@ export class PaymentController {
     return await this.paymentService.getUserPayment(user, page, count);
   }
 
-  @Roles(UserRoleEnum.USER, UserRoleEnum.SUPER_ADMIN)
-  @UseGuards(RolesGuard)
-  @Get("getReservationAmount")
-  getReservationAmount() {
-    return this.paymentService.getReservationAmount();
-  }
+  // @Roles(UserRoleEnum.USER, UserRoleEnum.SUPER_ADMIN)
+  // @UseGuards(RolesGuard)
+  // @Get("getReservationAmount")
+  // getReservationAmount() {
+  //   return this.paymentService.getReservationAmount();
+  // }
 
   @Roles(UserRoleEnum.USER, UserRoleEnum.SUPER_ADMIN)
   @UseGuards(RolesGuard)

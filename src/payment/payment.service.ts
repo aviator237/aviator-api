@@ -13,6 +13,7 @@ import { NotchPayPaymentEvent } from 'src/enum/payment-event.enum';
 import { WebhookDataDto } from './dto/webhook.data.dto';
 import { CreateTransfertDto } from './dto/create-transfert.dto';
 import { PaymentStatus } from 'src/enum/payment-status.enum';
+import { SocketService } from 'src/socket/socket.service';
 
 @Injectable()
 export class PaymentService {
@@ -28,6 +29,12 @@ export class PaymentService {
 
   ) { this.#currency = "XAF"; }
 
+  /**
+   * Crée un paiement pour un utilisateur.
+   * @param createPaymentDto - Les détails du paiement à créer.
+   * @param user - L'utilisateur effectuant le paiement.
+   * @returns Les détails du paiement initialisé.
+   */
   async createPayment(createPaymentDto: CreatePaymentDto, user: UserEntity) {
     try {
       const nestReference: string = this.uuidService.generate({ version: 4 });
@@ -50,6 +57,12 @@ export class PaymentService {
     }
   }
 
+  /**
+   * Crée un transfert pour un utilisateur.
+   * @param createTransfertDto - Les détails du transfert à effectuer.
+   * @param user - L'utilisateur effectuant le transfert.
+   * @returns Les détails du transfert initialisé.
+   */
   async createTransfer(createTransfertDto: CreateTransfertDto, user: UserEntity) {
     try {
       const nestReference: string = this.uuidService.generate({ version: 4 });
@@ -89,36 +102,18 @@ export class PaymentService {
   }
 
 
-  private async initializePayment(email: string, amount: number, currency: string, description: string, callbackUrl: string,): Promise<any> {
-    const data = {
-      amount,
-      currency,
-      description,
-      customer: {
-        email,
-      },
-    };
-
-    try {
-      const response = await axios.post(
-        'https://api.notchpay.co/payments/initialize',
-        data,
-        {
-          headers: {
-            Authorization: process.env.NOTCH_PAY_PUBLIC_API_KEY, // Remplacez par votre clé publique
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de l\'initialisation du paiement:', error);
-      throw error;
-    }
-  }
-
-
+  /**
+   * Crée un bénéficiaire pour un transfert.
+   * @param channel - Le canal de paiement (MTN, Orange, etc.).
+   * @param number - Le numéro de téléphone du bénéficiaire.
+   * @param phone - Le téléphone du bénéficiaire.
+   * @param country - Le pays du bénéficiaire.
+   * @param name - Le nom du bénéficiaire.
+   * @param description - La description du bénéficiaire.
+   * @param nestReference - La référence unique générée.
+   * @param email - L'email du bénéficiaire.
+   * @returns Les données de la réponse de l'API.
+   */
   async createRecipiant(channel: string, number: string, phone: string, country: string, name: string, description: string, nestReference: string, email: string): Promise<any> {
     const data = {
       channel,
@@ -152,6 +147,14 @@ export class PaymentService {
   }
 
 
+  /**
+   * Initialise un transfert d'argent vers un bénéficiaire.
+   * @param recipient - L'identifiant du bénéficiaire.
+   * @param amount - Le montant à transférer.
+   * @param currency - La devise utilisée.
+   * @param description - La description du transfert.
+   * @returns Les données de la réponse de l'API.
+   */
   async initializeTransfert(recipient: string, amount: number, currency: string, description: string): Promise<any> {
     const data = { amount, currency, description, recipient };
     try {
@@ -173,6 +176,15 @@ export class PaymentService {
     }
   }
 
+  /**
+   * Initialise un paiement mobile via un numéro de téléphone.
+   * @param phone - Le numéro de téléphone du client.
+   * @param amount - Le montant du paiement.
+   * @param currency - La devise utilisée.
+   * @param description - La description du paiement.
+   * @param nestReference - La référence unique générée.
+   * @returns Les données de la réponse de l'API.
+   */
   async initializeMobilePayment(phone: string, amount: number, currency: string, description: string, nestReference: string): Promise<any> {
     const data = { amount, reference: nestReference, currency, description, customer: { phone } };
 
@@ -197,6 +209,13 @@ export class PaymentService {
   }
 
 
+  /**
+   * Effectue un paiement en utilisant une référence existante.
+   * @param reference - La référence du paiement.
+   * @param channel - Le canal de paiement (MTN, Orange, etc.).
+   * @param phone - Le numéro de téléphone du client.
+   * @returns Les données de la réponse de l'API.
+   */
   async makePayment(reference: string, channel: string, phone: string): Promise<any> {
     const data = { channel, data: { phone } };
     try {
@@ -215,16 +234,35 @@ export class PaymentService {
   }
 
 
+  /**
+   * Récupère une liste paginée de tous les paiements.
+   * @param page - Le numéro de la page.
+   * @param count - Le nombre d'éléments par page.
+   * @returns Une liste de paiements.
+   */
   async findAll(page: number, count: number): Promise<PaymentEntity[]> {
     return await this.paymentRepository.find({ skip: page * count, take: count, order: { createAt: "DESC" } });
   }
 
 
+  /**
+   * Récupère une liste paginée des paiements d'un utilisateur.
+   * @param user - L'utilisateur dont on veut les paiements.
+   * @param page - Le numéro de la page.
+   * @param count - Le nombre d'éléments par page.
+   * @returns Une liste de paiements de l'utilisateur.
+   */
   async getUserPayment(user: UserEntity, page: number, count: number): Promise<PaymentEntity[]> {
     return await this.paymentRepository.find({ where: { user: { id: user.id } }, order: { createAt: "DESC" }, skip: page * count, take: count });
   }
 
 
+  /**
+   * Gère les webhooks reçus pour les événements de paiement.
+   * @param event - L'événement reçu.
+   * @param data - Les données associées à l'événement.
+   * @returns Un objet indiquant le statut du traitement.
+   */
   async handledWebhook(event: string, data: WebhookDataDto) {
     console.log(data)
     const expectedPayment: PaymentEntity = await this.paymentRepository.findOne({ where: { notchPayReference: data.reference }, relations: { user: true } });
@@ -236,67 +274,59 @@ export class PaymentService {
       expectedPayment.geo = data.geo;
       expectedPayment.fee = data.fee;
       this.paymentRepository.save(expectedPayment);
+
+      // Importer le service de socket
+      const socketService = new SocketService();
+
       switch (event) {
         case NotchPayPaymentEvent.PAYMENT_COMPLETE:
           expectedPayment.user.walletAmount += expectedPayment.amount;
           this.userEntityRepository.save(expectedPayment.user);
-          if (expectedPayment.user.notificationId) {
-            // this.firebaseService.sendOneNotification({
-            //   notification: {
-            //     title: expectedPayment.user.lang === "en" ? "Your recharge was successful" : "Votre recharge a réussi",
-            //     body: expectedPayment.user.lang === "en" ? `${expectedPayment.user.lastName ?? ""} ${expectedPayment.user.firstName}, your top-up of ${expectedPayment.amount} XAF was successful` : `${expectedPayment.user.lastName ?? ""} ${expectedPayment.user.firstName} votre recharge de ${expectedPayment.amount} XAF a réussi`,
-            //   }, token: expectedPayment.user.notificationId,
-            //   data: {
-            //     "type": NotificationTypeEnum.WALLET
-            //   }
-            // });
-          }
+
+          // Envoyer l'événement de mise à jour du paiement à l'utilisateur
+            // Envoyer l'événement de mise à jour du paiement
+            await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+
+            // Envoyer l'événement de mise à jour du montant du portefeuille
+            await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
           break;
         case NotchPayPaymentEvent.TRANSFERT_COMPLETE:
-          if (expectedPayment.user.notificationId) {
-            // this.firebaseService.sendOneNotification({
-            //   notification: {
-            //     title: expectedPayment.user.lang === "en" ? "Withdrawal completed successfully" : "Retrait effectué avec succès",
-            //     body: expectedPayment.user.lang === "en" ? `${expectedPayment.user.lastName ?? ""} ${expectedPayment.user.firstName}, your withdrawal has been successfully completed` : `${expectedPayment.user.lastName ?? ""} ${expectedPayment.user.firstName} votre retrait a été effectué avec succès`,
-            //   }, token: expectedPayment.user.notificationId,
-            //   data: {
-            //     "type": NotificationTypeEnum.WALLET
-            //   }
-            // });
-          }
+          // Envoyer l'événement de mise à jour du paiement à l'utilisateur
+// Envoyer l'événement de mise à jour du paiement
+await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+
+// Envoyer l'événement de mise à jour du montant du portefeuille
+await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+
+
           this.userEntityRepository.save(expectedPayment.user);
           break;
         case NotchPayPaymentEvent.TRANSFERT_ECHOUE:
-          if (expectedPayment.user.notificationId) {
-            // this.firebaseService.sendOneNotification({
-            //   notification: {
-            //     title: expectedPayment.user.lang === "en" ? "Your withdrawal failed" : "Votre retrait a échoué",
-            //     body: expectedPayment.user.lang === "en" ? `${expectedPayment.user.lastName ?? ""} ${expectedPayment.user.firstName}, your withdrawal of ${expectedPayment.amount} XAF has failed` : `${expectedPayment.user.lastName ?? ""} ${expectedPayment.user.firstName} votre retrait de ${expectedPayment.amount} XAF a échoué`,
-            //   }, token: expectedPayment.user.notificationId,
-            //   data: {
-            //     "type": NotificationTypeEnum.WALLET
-            //   }
-            // });
-          }
           expectedPayment.user.walletAmount += expectedPayment.amount;
           this.userEntityRepository.save(expectedPayment.user);
+
+          // Envoyer l'événement de mise à jour du paiement à l'utilisateur
+          await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+
+          // Envoyer l'événement de mise à jour du montant du portefeuille
+          await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+
+
           break;
         case NotchPayPaymentEvent.PAYMENT_ECHOUE:
-          if (expectedPayment.user.notificationId) {
-            // this.firebaseService.sendOneNotification({
-            //   notification: {
-            //     title: expectedPayment.user.lang === "en" ? "Your top-up failed" : "Votre recharge a échoué",
-            //     body: expectedPayment.user.lang === "en" ? `${expectedPayment.user.lastName ?? ""} ${expectedPayment.user.firstName}, your top-up of ${expectedPayment.amount} XAF has failed` : `${expectedPayment.user.lastName ?? ""} ${expectedPayment.user.firstName} votre recharge de ${expectedPayment.amount} XAF a échoué`,
-            //   }, token: expectedPayment.user.notificationId,
-            //   data: {
-            //     "type": NotificationTypeEnum.WALLET
-            //   }
-            // });
-          }
+          // Envoyer l'événement de mise à jour du paiement à l'utilisateur
+          await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+
           break;
         case NotchPayPaymentEvent.PAYMENT_REMBOURSE_AU_CLIENT:
           expectedPayment.user.walletAmount -= expectedPayment.amount;
           this.userEntityRepository.save(expectedPayment.user);
+
+            // Envoyer l'événement de mise à jour du paiement
+            await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+
+            // Envoyer l'événement de mise à jour du montant du portefeuille
+            await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
           break;
         default:
           break;
@@ -309,18 +339,38 @@ export class PaymentService {
     };
   }
 
+  /**
+   * Récupère le pourcentage de réservation pour les tickets.
+   * @returns Le pourcentage de réservation.
+   */
   getReservationAmount(): number {
     return this.configService.get<number>('TICKET_RESERVATION_PERCENT');
   }
 
+  /**
+   * Récupère un paiement par son identifiant.
+   * @param id - L'identifiant du paiement.
+   * @returns Le paiement correspondant.
+   */
   async findOne(id: number): Promise<PaymentEntity> {
     return await this.paymentRepository.findOneBy({ id: id });
   }
 
+  /**
+   * Met à jour un paiement existant.
+   * @param id - L'identifiant du paiement.
+   * @param updatePaymentDto - Les nouvelles données du paiement.
+   * @returns Un message indiquant l'action effectuée.
+   */
   update(id: number, updatePaymentDto: UpdatePaymentDto) {
     return `This action updates a #${id} payment`;
   }
 
+  /**
+   * Supprime un paiement par son identifiant.
+   * @param id - L'identifiant du paiement.
+   * @returns Un message indiquant l'action effectuée.
+   */
   remove(id: number) {
     return `This action removes a #${id} payment`;
   }

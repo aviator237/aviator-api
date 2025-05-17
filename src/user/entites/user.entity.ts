@@ -131,6 +131,12 @@ export class UserEntity extends TimestampEntities {
 
 
     @Column({
+        default: false
+    })
+    isLoggedOut: boolean;
+
+
+    @Column({
         type: "float",
         default: 0
     })

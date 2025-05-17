@@ -22,6 +22,7 @@ const user_role_enum_1 = require("../enum/user-role.enum");
 const roles_decorator_1 = require("../decorators/roles.decorator");
 const roles_guard_1 = require("../token-auth/Guard/roles.guard");
 const is_valid_object_id_pipe_1 = require("../pipes/is-valid-object-id.pipe");
+const change_password_dto_1 = require("./dto/change-password.dto");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -52,6 +53,9 @@ let UserController = class UserController {
     }
     async updateMyAcount(UpdateUserDto, user) {
         return await this.userService.update(user.id, UpdateUserDto);
+    }
+    async changePassword(user, changePasswordDto) {
+        return await this.userService.changePassword(user, changePasswordDto);
     }
 };
 exports.UserController = UserController;
@@ -136,6 +140,17 @@ __decorate([
         user_entity_1.UserEntity]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateMyAcount", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.USER, user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, common_1.Post)("change-password"),
+    __param(0, (0, users_decorator_1.User)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [user_entity_1.UserEntity,
+        change_password_dto_1.ChangePasswordDto]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "changePassword", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])

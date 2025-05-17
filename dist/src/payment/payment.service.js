@@ -36,6 +36,7 @@ const payment_channel_enum_1 = require("../enum/payment-channel.enum");
 const config_1 = require("@nestjs/config");
 const payment_event_enum_1 = require("../enum/payment-event.enum");
 const payment_status_enum_1 = require("../enum/payment-status.enum");
+const socket_service_1 = require("../socket/socket.service");
 let PaymentService = class PaymentService {
     constructor(paymentRepository, userEntityRepository, uuidService, configService) {
         this.paymentRepository = paymentRepository;
@@ -98,29 +99,6 @@ let PaymentService = class PaymentService {
         }
         catch (error) {
             throw new common_1.BadRequestException();
-        }
-    }
-    async initializePayment(email, amount, currency, description, callbackUrl) {
-        const data = {
-            amount,
-            currency,
-            description,
-            customer: {
-                email,
-            },
-        };
-        try {
-            const response = await axios_1.default.post('https://api.notchpay.co/payments/initialize', data, {
-                headers: {
-                    Authorization: process.env.NOTCH_PAY_PUBLIC_API_KEY,
-                    'Content-Type': 'application/json',
-                },
-            });
-            return response.data;
-        }
-        catch (error) {
-            console.error('Erreur lors de l\'initialisation du paiement:', error);
-            throw error;
         }
     }
     async createRecipiant(channel, number, phone, country, name, description, nestReference, email) {
@@ -215,31 +193,33 @@ let PaymentService = class PaymentService {
             expectedPayment.geo = data.geo;
             expectedPayment.fee = data.fee;
             this.paymentRepository.save(expectedPayment);
+            const socketService = new socket_service_1.SocketService();
             switch (event) {
                 case payment_event_enum_1.NotchPayPaymentEvent.PAYMENT_COMPLETE:
                     expectedPayment.user.walletAmount += expectedPayment.amount;
                     this.userEntityRepository.save(expectedPayment.user);
-                    if (expectedPayment.user.notificationId) {
-                    }
+                    await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+                    await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
                     break;
                 case payment_event_enum_1.NotchPayPaymentEvent.TRANSFERT_COMPLETE:
-                    if (expectedPayment.user.notificationId) {
-                    }
+                    await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+                    await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
                     this.userEntityRepository.save(expectedPayment.user);
                     break;
                 case payment_event_enum_1.NotchPayPaymentEvent.TRANSFERT_ECHOUE:
-                    if (expectedPayment.user.notificationId) {
-                    }
                     expectedPayment.user.walletAmount += expectedPayment.amount;
                     this.userEntityRepository.save(expectedPayment.user);
+                    await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+                    await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
                     break;
                 case payment_event_enum_1.NotchPayPaymentEvent.PAYMENT_ECHOUE:
-                    if (expectedPayment.user.notificationId) {
-                    }
+                    await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
                     break;
                 case payment_event_enum_1.NotchPayPaymentEvent.PAYMENT_REMBOURSE_AU_CLIENT:
                     expectedPayment.user.walletAmount -= expectedPayment.amount;
                     this.userEntityRepository.save(expectedPayment.user);
+                    await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+                    await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
                     break;
                 default:
                     break;

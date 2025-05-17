@@ -20,6 +20,7 @@ import { GameRoundModule } from './game-round/game-round.module';
 import { PlayerBetModule } from './player-bet/player-bet.module';
 import { SocketsGateway } from './socket/socket.gateway';
 import { PaymentEntity } from './payment/entities/payment.entity';
+import { PaymentModule } from './payment/payment.module';
 
 dotenv.config()
 
@@ -79,6 +80,7 @@ const MYSQL_ADDON_URI = `mysql://${MYSQL_ADDON_USER}:${MYSQL_ADDON_PASSWORD}@${M
     UserModule,
     GameRoundModule,
     PlayerBetModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService, SocketsGateway,

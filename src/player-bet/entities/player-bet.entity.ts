@@ -39,6 +39,13 @@ export class PlayerBetEntity extends TimestampEntities {
     })
     status: BetStatus;
 
+    @Column({
+        nullable: true,
+        type: "float",
+        default: null
+    })
+    autoCashoutValue: number;
+
     @ManyToOne(
         () => GameRoundEntity,
         (gameRound) => gameRound.players,

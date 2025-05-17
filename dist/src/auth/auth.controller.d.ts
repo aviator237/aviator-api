@@ -25,6 +25,7 @@ export declare class AuthController {
             referalCode: string;
             lastLogin: Date;
             isOnline: boolean;
+            isLoggedOut: boolean;
             walletAmount: number;
             godfather: UserEntity;
             goddaughters: UserEntity[];
@@ -50,5 +51,9 @@ export declare class AuthController {
     refresh(user: UserEntity): Promise<{
         access_token: string;
         refresh_token: string;
+    }>;
+    logout(user: UserEntity): Promise<{
+        status: string;
+        message: string;
     }>;
 }

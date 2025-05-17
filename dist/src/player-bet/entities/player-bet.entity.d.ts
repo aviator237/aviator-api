@@ -8,6 +8,7 @@ export declare class PlayerBetEntity extends TimestampEntities {
     winAmount: number;
     reference: string;
     status: BetStatus;
+    autoCashoutValue: number;
     gameRound: GameRoundEntity;
     user: UserEntity;
 }

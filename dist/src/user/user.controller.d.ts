@@ -1,6 +1,7 @@
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entites/user.entity';
 import { UserService } from './user.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
@@ -20,5 +21,9 @@ export declare class UserController {
     }>;
     updateMyAcount(UpdateUserDto: UpdateUserDto, user: UserEntity): Promise<{
         user: UserEntity;
+    }>;
+    changePassword(user: UserEntity, changePasswordDto: ChangePasswordDto): Promise<{
+        status: string;
+        message: string;
     }>;
 }

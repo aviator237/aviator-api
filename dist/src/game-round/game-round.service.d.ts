@@ -14,4 +14,5 @@ export declare class GameRoundService {
     findOne(id: number): string;
     update(id: number, updateGameRoundDto: UpdateGameRoundDto): string;
     remove(id: number): string;
+    private checkAutoCashouts;
 }

@@ -30,7 +30,7 @@ let PaymentController = class PaymentController {
     constructor(paymentService) {
         this.paymentService = paymentService;
     }
-    async create(createPaymentDto, user) {
+    async createPayment(createPaymentDto, user) {
         return await this.paymentService.createPayment(createPaymentDto, user);
     }
     async transfer(createTransfertDto, user) {
@@ -44,9 +44,6 @@ let PaymentController = class PaymentController {
     }
     async getUserPayment(page, count, user) {
         return await this.paymentService.getUserPayment(user, page, count);
-    }
-    getReservationAmount() {
-        return this.paymentService.getReservationAmount();
     }
     async findOne(id) {
         return await this.paymentService.findOne(id);
@@ -63,7 +60,7 @@ __decorate([
     __metadata("design:paramtypes", [create_payment_dto_1.CreatePaymentDto,
         user_entity_1.UserEntity]),
     __metadata("design:returntype", Promise)
-], PaymentController.prototype, "create", null);
+], PaymentController.prototype, "createPayment", null);
 __decorate([
     (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.USER, user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
@@ -106,14 +103,6 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number, user_entity_1.UserEntity]),
     __metadata("design:returntype", Promise)
 ], PaymentController.prototype, "getUserPayment", null);
-__decorate([
-    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.USER, user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
-    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, common_1.Get)("getReservationAmount"),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], PaymentController.prototype, "getReservationAmount", null);
 __decorate([
     (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.USER, user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),

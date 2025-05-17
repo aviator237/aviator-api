@@ -1,10 +1,12 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entites/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { Action } from 'src/enum/action.enum';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -82,7 +84,42 @@ export class UserService {
         } else {
             throw new NotFoundException("User Not Found")
         }
+    }
 
+    async changePassword(user: UserEntity, changePasswordDto: ChangePasswordDto) {
+        try {
+            // Vérifier que le mot de passe actuel est correct
+            const currentPasswordHash = await bcrypt.hash(changePasswordDto.currentPassword, user.salt);
+            if (currentPasswordHash !== user.password) {
+                throw new UnauthorizedException('Mot de passe actuel incorrect');
+            }
+
+            // Vérifier que le nouveau mot de passe et la confirmation correspondent
+            if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
+                throw new BadRequestException('Le nouveau mot de passe et la confirmation ne correspondent pas');
+            }
+
+            // Vérifier que le nouveau mot de passe est différent de l'ancien
+            const isSamePassword = await bcrypt.compare(changePasswordDto.newPassword, user.password);
+            if (isSamePassword) {
+                throw new BadRequestException('Le nouveau mot de passe doit être différent de l\'ancien');
+            }
+
+            // Mettre à jour le mot de passe
+            user.salt = await bcrypt.genSalt();
+            user.password = await bcrypt.hash(changePasswordDto.newPassword, user.salt);
+            await this.userRepository.save(user);
+
+            return {
+                status: "success",
+                message: "Mot de passe modifié avec succès"
+            };
+        } catch (e) {
+            if (e instanceof UnauthorizedException || e instanceof BadRequestException) {
+                throw e;
+            }
+            throw new BadRequestException('Une erreur est survenue lors du changement de mot de passe');
+        }
     }
 
 }

@@ -34,6 +34,9 @@ let AuthController = class AuthController {
     async refresh(user) {
         return await this.authService.refreshTokens(user);
     }
+    async logout(user) {
+        return await this.authService.logout(user);
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -62,6 +65,13 @@ __decorate([
     __metadata("design:paramtypes", [user_entity_1.UserEntity]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refresh", null);
+__decorate([
+    (0, common_1.Post)("logout"),
+    __param(0, (0, users_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [user_entity_1.UserEntity]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "logout", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

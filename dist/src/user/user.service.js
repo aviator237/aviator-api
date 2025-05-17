@@ -19,6 +19,7 @@ const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entites/user.entity");
 const casl_ability_factory_1 = require("../casl/casl-ability.factory/casl-ability.factory");
 const action_enum_1 = require("../enum/action.enum");
+const bcrypt = require("bcrypt");
 let UserService = class UserService {
     constructor(userRepository, caslAbilityFactory) {
         this.userRepository = userRepository;
@@ -81,6 +82,34 @@ let UserService = class UserService {
         }
         else {
             throw new common_1.NotFoundException("User Not Found");
+        }
+    }
+    async changePassword(user, changePasswordDto) {
+        try {
+            const currentPasswordHash = await bcrypt.hash(changePasswordDto.currentPassword, user.salt);
+            if (currentPasswordHash !== user.password) {
+                throw new common_1.UnauthorizedException('Mot de passe actuel incorrect');
+            }
+            if (changePasswordDto.newPassword !== changePasswordDto.confirmPassword) {
+                throw new common_1.BadRequestException('Le nouveau mot de passe et la confirmation ne correspondent pas');
+            }
+            const isSamePassword = await bcrypt.compare(changePasswordDto.newPassword, user.password);
+            if (isSamePassword) {
+                throw new common_1.BadRequestException('Le nouveau mot de passe doit être différent de l\'ancien');
+            }
+            user.salt = await bcrypt.genSalt();
+            user.password = await bcrypt.hash(changePasswordDto.newPassword, user.salt);
+            await this.userRepository.save(user);
+            return {
+                status: "success",
+                message: "Mot de passe modifié avec succès"
+            };
+        }
+        catch (e) {
+            if (e instanceof common_1.UnauthorizedException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException('Une erreur est survenue lors du changement de mot de passe');
         }
     }
 };

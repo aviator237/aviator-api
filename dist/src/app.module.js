@@ -28,6 +28,7 @@ const game_round_module_1 = require("./game-round/game-round.module");
 const player_bet_module_1 = require("./player-bet/player-bet.module");
 const socket_gateway_1 = require("./socket/socket.gateway");
 const payment_entity_1 = require("./payment/entities/payment.entity");
+const payment_module_1 = require("./payment/payment.module");
 dotenv.config();
 const MYSQL_ADDON_HOST = process.env.MYSQL_ADDON_HOST;
 const MYSQL_ADDON_PORT = parseInt(process.env.MYSQL_ADDON_PORT);
@@ -82,6 +83,7 @@ exports.AppModule = AppModule = __decorate([
             user_module_1.UserModule,
             game_round_module_1.GameRoundModule,
             player_bet_module_1.PlayerBetModule,
+            payment_module_1.PaymentModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, socket_gateway_1.SocketsGateway,

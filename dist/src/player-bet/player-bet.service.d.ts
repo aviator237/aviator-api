@@ -11,8 +11,18 @@ export declare class PlayerBetService {
     private readonly socketService;
     static currentPercent: number;
     static waitingPlayers: CreatePlayerBetDto[];
+    static autoCheckoutPlayers: {
+        userId: string;
+        roundId: number;
+        autoCashoutValue: number;
+        betId: number;
+    }[];
     constructor(playerBetRepository: Repository<PlayerBetEntity>, gameRoundRepository: Repository<GameRoundEntity>, userRepository: Repository<UserEntity>, socketService: SocketService);
     handleUserBet(createPlayerBetDto: CreatePlayerBetDto): Promise<boolean>;
     handleUserStopWaitingBet(userId: string, reference: string): Promise<void>;
     handleUserStopBet(userId: string, roundId: number): Promise<boolean>;
+    getUserBetHistory(userId: string, page: number, count: number): Promise<PlayerBetEntity[]>;
+    static clearAutoCheckoutPlayersForRound(gameRoundId: number): void;
+    processAutoCheckouts(gameRoundId: number, currentMultiplier: number): Promise<void>;
+    getActivePlayersWithAutoCashout(gameRoundId: number): Promise<PlayerBetEntity[]>;
 }

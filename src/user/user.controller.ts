@@ -1,4 +1,4 @@
-import { Body, Controller, DefaultValuePipe, Delete, Get, Param, ParseIntPipe, Patch, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { User } from 'src/decorators/users.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entites/user.entity';
@@ -7,6 +7,7 @@ import { UserRoleEnum } from 'src/enum/user-role.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { RolesGuard } from 'src/token-auth/Guard/roles.guard';
 import { IsValidObjectIdPipe } from 'src/pipes/is-valid-object-id.pipe';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('user')
 export class UserController {
@@ -96,5 +97,14 @@ export class UserController {
         return await this.userService.update(user.id, UpdateUserDto)
     }
 
+    @Roles(UserRoleEnum.USER, UserRoleEnum.SUPER_ADMIN)
+    @UseGuards(RolesGuard)
+    @Post("change-password")
+    async changePassword(
+        @User() user: UserEntity,
+        @Body() changePasswordDto: ChangePasswordDto
+    ) {
+        return await this.userService.changePassword(user, changePasswordDto);
+    }
 
 }

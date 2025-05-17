@@ -141,6 +141,12 @@ __decorate([
 ], UserEntity.prototype, "isOnline", void 0);
 __decorate([
     (0, typeorm_1.Column)({
+        default: false
+    }),
+    __metadata("design:type", Boolean)
+], UserEntity.prototype, "isLoggedOut", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
         type: "float",
         default: 0
     }),

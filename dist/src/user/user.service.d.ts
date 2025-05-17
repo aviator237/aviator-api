@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './entites/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
+import { ChangePasswordDto } from './dto/change-password.dto';
 export declare class UserService {
     private readonly userRepository;
     private readonly caslAbilityFactory;
@@ -15,5 +16,9 @@ export declare class UserService {
     }>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<{
         user: UserEntity;
+    }>;
+    changePassword(user: UserEntity, changePasswordDto: ChangePasswordDto): Promise<{
+        status: string;
+        message: string;
     }>;
 }
