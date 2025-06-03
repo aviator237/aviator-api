@@ -16,6 +16,7 @@ const socket_service_1 = require("../socket/socket.service");
 const player_bet_service_1 = require("../player-bet/player-bet.service");
 const player_bet_entity_1 = require("../player-bet/entities/player-bet.entity");
 const user_entity_1 = require("../user/entites/user.entity");
+const fake_bet_generator_1 = require("../utils/fake-bet.generator");
 let GameRoundModule = class GameRoundModule {
 };
 exports.GameRoundModule = GameRoundModule;
@@ -25,7 +26,7 @@ exports.GameRoundModule = GameRoundModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([game_round_entity_1.GameRoundEntity, player_bet_entity_1.PlayerBetEntity, user_entity_1.UserEntity]),
         ],
         controllers: [game_round_controller_1.GameRoundController],
-        providers: [game_round_service_1.GameRoundService, socket_service_1.SocketService, player_bet_service_1.PlayerBetService],
+        providers: [game_round_service_1.GameRoundService, socket_service_1.SocketService, player_bet_service_1.PlayerBetService, fake_bet_generator_1.FakeBetGenerator],
     })
 ], GameRoundModule);
 //# sourceMappingURL=game-round.module.js.map

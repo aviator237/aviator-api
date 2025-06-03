@@ -56,8 +56,8 @@ let SocketsGateway = class SocketsGateway {
     }
     async handleStopBet(data) {
         console.log(data);
-        const { userId, roundId } = data;
-        const result = await this.playerBetService.handleUserStopBet(userId, roundId);
+        const { userId, roundId, reference } = data;
+        const result = await this.playerBetService.handleUserStopBet(userId, roundId, reference);
         console.log(result);
         return result;
     }

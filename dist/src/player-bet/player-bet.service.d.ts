@@ -16,11 +16,12 @@ export declare class PlayerBetService {
         roundId: number;
         autoCashoutValue: number;
         betId: number;
+        reference: string;
     }[];
     constructor(playerBetRepository: Repository<PlayerBetEntity>, gameRoundRepository: Repository<GameRoundEntity>, userRepository: Repository<UserEntity>, socketService: SocketService);
     handleUserBet(createPlayerBetDto: CreatePlayerBetDto): Promise<boolean>;
     handleUserStopWaitingBet(userId: string, reference: string): Promise<void>;
-    handleUserStopBet(userId: string, roundId: number): Promise<boolean>;
+    handleUserStopBet(userId: string, roundId: number, reference: string): Promise<boolean>;
     getUserBetHistory(userId: string, page: number, count: number): Promise<PlayerBetEntity[]>;
     static clearAutoCheckoutPlayersForRound(gameRoundId: number): void;
     processAutoCheckouts(gameRoundId: number, currentMultiplier: number): Promise<void>;

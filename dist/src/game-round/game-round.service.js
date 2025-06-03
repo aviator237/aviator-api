@@ -21,11 +21,14 @@ const socket_service_1 = require("../socket/socket.service");
 const game_round_state_enum_1 = require("../enum/game-round-state.enum");
 const player_bet_service_1 = require("../player-bet/player-bet.service");
 const bet_status_enum_1 = require("../enum/bet-status.enum");
+const fake_bet_generator_1 = require("../utils/fake-bet.generator");
 let GameRoundService = class GameRoundService {
-    constructor(gameRoundRepository, socketService, playerBetService) {
+    constructor(gameRoundRepository, socketService, playerBetService, fakeBetGenerator) {
         this.gameRoundRepository = gameRoundRepository;
         this.socketService = socketService;
         this.playerBetService = playerBetService;
+        this.fakeBetGenerator = fakeBetGenerator;
+        this.fakeBets = [];
         setTimeout(() => {
             this.createNewRound();
         }, 5000);
@@ -41,6 +44,7 @@ let GameRoundService = class GameRoundService {
         return gameRound;
     }
     async startPlaying(gameRoundId) {
+        var _a, _b;
         console.log("startPlaying...........................................");
         if (player_bet_service_1.PlayerBetService.waitingPlayers && player_bet_service_1.PlayerBetService.waitingPlayers.length > 0) {
             console.log(`Traitement de ${player_bet_service_1.PlayerBetService.waitingPlayers.length} mises en attente`);
@@ -60,6 +64,10 @@ let GameRoundService = class GameRoundService {
         gameRound.isActive = true;
         gameRound.status = game_round_state_enum_1.GameRoundStateEnum.EN_COURS;
         gameRound = await this.gameRoundRepository.save(gameRound);
+        this.fakeBets = this.fakeBetGenerator.generateFakeBets(gameRound.id, gameRound.players.length);
+        if (this.fakeBets.length > 0) {
+            gameRound.players = [...gameRound.players, ...this.fakeBets];
+        }
         await this.socketService.sendStartRound(gameRound);
         this.socketService.sendRoundPlayers(gameRound.players);
         const maxCount = (Math.floor(Math.random() * 50) + 1) * 10;
@@ -70,6 +78,7 @@ let GameRoundService = class GameRoundService {
             await this.socketService.sendRoundCurrentPercent(gameRound.currentPercent);
             player_bet_service_1.PlayerBetService.currentPercent = gameRound.currentPercent;
             this.checkAutoCashouts(gameRound);
+            this.checkFakeBets(gameRound);
             await new Promise(resolve => setTimeout(resolve, 100));
         }
         if (gameRound.players && gameRound.players.length > 0) {
@@ -77,7 +86,12 @@ let GameRoundService = class GameRoundService {
             for (const player of activePlayers) {
                 player.status = bet_status_enum_1.BetStatus.PERDUE;
                 player.endPercent = gameRound.currentPercent;
-                await this.updateLosingPlayer(player);
+                if ((_b = (_a = player.user) === null || _a === void 0 ? void 0 : _a.id) === null || _b === void 0 ? void 0 : _b.startsWith('fake_')) {
+                    this.socketService.sendPlayerUpdate(player);
+                }
+                else {
+                    await this.updateLosingPlayer(player);
+                }
             }
         }
         player_bet_service_1.PlayerBetService.currentPercent = 0;
@@ -85,9 +99,23 @@ let GameRoundService = class GameRoundService {
         gameRound.status = game_round_state_enum_1.GameRoundStateEnum.TERMINE;
         gameRound = await this.gameRoundRepository.save(gameRound);
         player_bet_service_1.PlayerBetService.clearAutoCheckoutPlayersForRound(gameRound.id);
+        this.fakeBets = [];
         await this.socketService.sendEndRound(gameRound);
         this.createNewRound();
         return gameRound;
+    }
+    async checkFakeBets(gameRound) {
+        const activeFakeBets = this.fakeBets.filter(bet => bet.status === bet_status_enum_1.BetStatus.MISE);
+        for (const fakeBet of activeFakeBets) {
+            if (this.fakeBetGenerator.shouldCashout(fakeBet, gameRound.currentPercent)) {
+                const winAmount = fakeBet.amount * gameRound.currentPercent;
+                fakeBet.winAmount = parseFloat(winAmount.toFixed(2));
+                fakeBet.status = bet_status_enum_1.BetStatus.GAGNE;
+                fakeBet.endPercent = gameRound.currentPercent;
+                this.socketService.sendPlayerUpdate(fakeBet);
+                this.fakeBets = this.fakeBets.filter(bet => bet !== fakeBet);
+            }
+        }
     }
     findAll() {
         return `This action returns all gameRound`;
@@ -128,6 +156,7 @@ exports.GameRoundService = GameRoundService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(game_round_entity_1.GameRoundEntity)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         socket_service_1.SocketService,
-        player_bet_service_1.PlayerBetService])
+        player_bet_service_1.PlayerBetService,
+        fake_bet_generator_1.FakeBetGenerator])
 ], GameRoundService);
 //# sourceMappingURL=game-round.service.js.map

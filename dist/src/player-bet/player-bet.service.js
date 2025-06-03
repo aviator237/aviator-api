@@ -47,7 +47,6 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
         }
         createPlayerBetDto.user = user;
         if (round.status !== game_round_state_enum_1.GameRoundStateEnum.INITIALISE) {
-            user.walletAmount -= createPlayerBetDto.amount;
             await this.userRepository.save(user);
             this.socketService.sendWalletAmount(user.id, user.walletAmount);
             PlayerBetService_1.waitingPlayers.push(createPlayerBetDto);
@@ -71,7 +70,8 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
                 userId: user.id,
                 roundId: round.id,
                 autoCashoutValue: createPlayerBetDto.autoCashoutValue,
-                betId: savedBet.id
+                betId: savedBet.id,
+                reference: savedBet.reference
             });
         }
         this.socketService.sendBetAccepted(createPlayerBetDto.userId, createPlayerBetDto.reference);
@@ -83,19 +83,13 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
         for (let index = 0; index < PlayerBetService_1.waitingPlayers.length; index++) {
             const element = PlayerBetService_1.waitingPlayers[index];
             if (element.reference === reference) {
-                const user = await this.userRepository.findOneBy({ id: userId });
-                if (user) {
-                    user.walletAmount += element.amount;
-                    await this.userRepository.save(user);
-                    this.socketService.sendWalletAmount(user.id, user.walletAmount);
-                }
                 PlayerBetService_1.waitingPlayers.splice(index, 1);
                 this.socketService.sendWaitingBetStop(userId, reference);
                 break;
             }
         }
     }
-    async handleUserStopBet(userId, roundId) {
+    async handleUserStopBet(userId, roundId, reference) {
         const user = await this.userRepository.findOneBy({ id: userId });
         if (!user) {
             return false;
@@ -105,7 +99,6 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
         if (!round || round.status !== game_round_state_enum_1.GameRoundStateEnum.EN_COURS) {
             return false;
         }
-        console.log("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
         const player = await this.playerBetRepository.findOneBy({ gameRound: { id: roundId }, user: { id: userId } });
         console.log(player);
         if (!player || player.status !== bet_status_enum_1.BetStatus.MISE) {
@@ -139,7 +132,7 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
     async processAutoCheckouts(gameRoundId, currentMultiplier) {
         const playersToCheckout = PlayerBetService_1.autoCheckoutPlayers.filter(player => player.roundId === gameRoundId && player.autoCashoutValue <= currentMultiplier);
         for (const player of playersToCheckout) {
-            this.handleUserStopBet(player.userId, player.roundId).catch(error => {
+            this.handleUserStopBet(player.userId, player.roundId, player.reference).catch(error => {
                 console.error(`Erreur lors du cashout automatique pour l'utilisateur ${player.userId}:`, error);
             });
             const index = PlayerBetService_1.autoCheckoutPlayers.findIndex(p => p.userId === player.userId && p.roundId === player.roundId);

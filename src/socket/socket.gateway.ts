@@ -55,10 +55,10 @@ export class SocketsGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     }
 
     @SubscribeMessage(SocketEventEnum.STOP_MISE)
-    async handleStopBet(@MessageBody() data: { userId: string, roundId: number }): Promise<boolean> {
+    async handleStopBet(@MessageBody() data: { userId: string, roundId: number, reference: string }): Promise<boolean> {
         console.log(data);
-        const { userId, roundId } = data;
-        const result = await this.playerBetService.handleUserStopBet(userId, roundId)
+        const { userId, roundId, reference } = data;
+        const result = await this.playerBetService.handleUserStopBet(userId, roundId, reference)
         console.log(result);
         return result;
     }

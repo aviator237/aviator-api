@@ -20,6 +20,7 @@ export class PlayerBetService {
     roundId: number;
     autoCashoutValue: number;
     betId: number;
+    reference: string;
   }[] = [];
   constructor(
     @InjectRepository(PlayerBetEntity)
@@ -54,8 +55,6 @@ export class PlayerBetService {
     createPlayerBetDto.user = user;
 
     if (round.status !== GameRoundStateEnum.INITIALISE) {
-      // Déduire le montant du portefeuille de l'utilisateur immédiatement
-      user.walletAmount -= createPlayerBetDto.amount;
       await this.userRepository.save(user);
       this.socketService.sendWalletAmount(user.id, user.walletAmount);
 
@@ -89,7 +88,8 @@ export class PlayerBetService {
         userId: user.id,
         roundId: round.id,
         autoCashoutValue: createPlayerBetDto.autoCashoutValue,
-        betId: savedBet.id
+        betId: savedBet.id,
+        reference: savedBet.reference
       });
     }
     this.socketService.sendBetAccepted(createPlayerBetDto.userId, createPlayerBetDto.reference);
@@ -106,15 +106,15 @@ export class PlayerBetService {
       const element = PlayerBetService.waitingPlayers[index];
       if (element.reference === reference) {
         // Récupérer l'utilisateur pour rembourser le montant
-        const user = await this.userRepository.findOneBy({ id: userId });
-        if (user) {
-          // Rembourser le montant de la mise
-          user.walletAmount += element.amount;
-          await this.userRepository.save(user);
+        // const user = await this.userRepository.findOneBy({ id: userId });
+        // if (user) {
+        //   // Rembourser le montant de la mise
+        //   user.walletAmount += element.amount;
+        //   await this.userRepository.save(user);
 
-          // Envoyer la mise à jour du portefeuille
-          this.socketService.sendWalletAmount(user.id, user.walletAmount);
-        }
+        //   // Envoyer la mise à jour du portefeuille
+        //   this.socketService.sendWalletAmount(user.id, user.walletAmount);
+        // }
 
         // Supprimer de la liste d'attente
         PlayerBetService.waitingPlayers.splice(index, 1);
@@ -127,7 +127,7 @@ export class PlayerBetService {
   }
 
 
-  async handleUserStopBet(userId: string, roundId: number): Promise<boolean> {
+  async handleUserStopBet(userId: string, roundId: number, reference: string): Promise<boolean> {
 
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
@@ -140,7 +140,7 @@ export class PlayerBetService {
       // this.socketService.sendBetDenied(user.id, round);
       return false;
     }
-    console.log("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+    // console.log("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
 
     const player: PlayerBetEntity = await this.playerBetRepository.findOneBy({ gameRound: { id: roundId }, user: { id: userId } })
     // const player: PlayerBetEntity = round.players.find((player) => player.user.id === userId);
@@ -206,7 +206,7 @@ export class PlayerBetService {
     // Traiter les cashouts de manière asynchrone
     for (const player of playersToCheckout) {
       // Exécuter le cashout et supprimer le joueur de la liste
-      this.handleUserStopBet(player.userId, player.roundId).catch(error => {
+      this.handleUserStopBet(player.userId, player.roundId, player.reference).catch(error => {
         console.error(`Erreur lors du cashout automatique pour l'utilisateur ${player.userId}:`, error);
       });
 
@@ -246,3 +246,8 @@ export class PlayerBetService {
     return await this.playerBetRepository.save(player);
   }
 }
+
+
+
+
+

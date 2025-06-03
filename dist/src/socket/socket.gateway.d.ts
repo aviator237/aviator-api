@@ -19,6 +19,7 @@ export declare class SocketsGateway implements OnGatewayInit, OnGatewayConnectio
     handleStopBet(data: {
         userId: string;
         roundId: number;
+        reference: string;
     }): Promise<boolean>;
     handleStopWaitingBet(data: {
         userId: string;

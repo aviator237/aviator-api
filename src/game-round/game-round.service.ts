@@ -9,14 +9,18 @@ import { GameRoundStateEnum } from 'src/enum/game-round-state.enum';
 import { PlayerBetService } from 'src/player-bet/player-bet.service';
 import { BetStatus } from 'src/enum/bet-status.enum';
 import { PlayerBetEntity } from 'src/player-bet/entities/player-bet.entity';
+import { FakeBetGenerator } from 'src/utils/fake-bet.generator';
 
 @Injectable()
 export class GameRoundService {
+  private fakeBets: PlayerBetEntity[] = [];
+
   constructor(
     @InjectRepository(GameRoundEntity)
     private readonly gameRoundRepository: Repository<GameRoundEntity>,
     private readonly socketService: SocketService,
     private readonly playerBetService: PlayerBetService,
+    private readonly fakeBetGenerator: FakeBetGenerator,
   ) {
     setTimeout(() => {
       this.createNewRound();
@@ -63,8 +67,16 @@ export class GameRoundService {
     gameRound.isActive = true;
     gameRound.status = GameRoundStateEnum.EN_COURS;
     gameRound = await this.gameRoundRepository.save(gameRound);
+
+    // Générer des paris fictifs si nécessaire
+    this.fakeBets = this.fakeBetGenerator.generateFakeBets(gameRound.id, gameRound.players.length);
+    if (this.fakeBets.length > 0) {
+      gameRound.players = [...gameRound.players, ...this.fakeBets];
+    }
+
     await this.socketService.sendStartRound(gameRound);
     this.socketService.sendRoundPlayers(gameRound.players);
+    
     const maxCount = (Math.floor(Math.random() * 50) + 1) * 10;
     console.log("maxCount: ", maxCount)
     for (let i = 0; i < maxCount; i++) {
@@ -76,16 +88,25 @@ export class GameRoundService {
       // Vérifier les cashouts automatiques
       this.checkAutoCashouts(gameRound);
 
+      // Vérifier les paris fictifs
+      this.checkFakeBets(gameRound);
+
       await new Promise(resolve => setTimeout(resolve, 100));
     }
+
     // Mettre à jour les joueurs qui n'ont pas encaissé (perdants)
     if (gameRound.players && gameRound.players.length > 0) {
       const activePlayers = gameRound.players.filter(player => player.status === BetStatus.MISE);
       for (const player of activePlayers) {
         player.status = BetStatus.PERDUE;
         player.endPercent = gameRound.currentPercent;
-        // Utiliser une méthode publique pour mettre à jour les joueurs perdants
-        await this.updateLosingPlayer(player);
+        if (player.user?.id?.startsWith('fake_')) {
+          // Pour les paris fictifs, pas besoin de sauvegarder en base de données
+          this.socketService.sendPlayerUpdate(player);
+        } else {
+          // Pour les vrais joueurs, mettre à jour en base de données
+          await this.updateLosingPlayer(player);
+        }
       }
     }
 
@@ -96,13 +117,33 @@ export class GameRoundService {
 
     // Nettoyer la liste des auto-cashouts pour ce tour
     PlayerBetService.clearAutoCheckoutPlayersForRound(gameRound.id);
+    // Réinitialiser les paris fictifs
+    this.fakeBets = [];
 
     await this.socketService.sendEndRound(gameRound);
     this.createNewRound();
     return gameRound;
   }
 
+  private async checkFakeBets(gameRound: GameRoundEntity): Promise<void> {
+    const activeFakeBets = this.fakeBets.filter(bet => bet.status === BetStatus.MISE);
+    
+    for (const fakeBet of activeFakeBets) {
+      if (this.fakeBetGenerator.shouldCashout(fakeBet, gameRound.currentPercent)) {
+        // Calculer le gain
+        const winAmount = fakeBet.amount * gameRound.currentPercent;
+        fakeBet.winAmount = parseFloat(winAmount.toFixed(2));
+        fakeBet.status = BetStatus.GAGNE;
+        fakeBet.endPercent = gameRound.currentPercent;
 
+        // Mettre à jour l'affichage pour tous les utilisateurs
+        this.socketService.sendPlayerUpdate(fakeBet);
+
+        // Retirer le pari de la liste des paris actifs
+        this.fakeBets = this.fakeBets.filter(bet => bet !== fakeBet);
+      }
+    }
+  }
 
   findAll() {
     return `This action returns all gameRound`;
