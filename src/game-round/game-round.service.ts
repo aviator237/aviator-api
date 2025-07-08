@@ -73,11 +73,15 @@ export class GameRoundService {
     if (this.fakeBets.length > 0) {
       gameRound.players = [...gameRound.players, ...this.fakeBets];
     }
+    // Trier les joueurs par montant décroissant avant d'envoyer aux clients
+    if (gameRound.players && gameRound.players.length > 0) {
+      gameRound.players.sort((a, b) => b.amount - a.amount);
+    }
 
     await this.socketService.sendStartRound(gameRound);
     this.socketService.sendRoundPlayers(gameRound.players);
-    
-    const maxCount = (Math.floor(Math.random() * 50) + 1) * 10;
+
+    const maxCount = (Math.floor(Math.random() * 100) + 1);
     console.log("maxCount: ", maxCount)
     for (let i = 0; i < maxCount; i++) {
       gameRound.currentPercent += 0.01;
@@ -127,7 +131,7 @@ export class GameRoundService {
 
   private async checkFakeBets(gameRound: GameRoundEntity): Promise<void> {
     const activeFakeBets = this.fakeBets.filter(bet => bet.status === BetStatus.MISE);
-    
+
     for (const fakeBet of activeFakeBets) {
       if (this.fakeBetGenerator.shouldCashout(fakeBet, gameRound.currentPercent)) {
         // Calculer le gain

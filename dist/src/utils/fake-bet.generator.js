@@ -47,11 +47,10 @@ let FakeBetGenerator = class FakeBetGenerator {
         return fakeBets;
     }
     generateRandomAmount() {
-        const amounts = [100, 200, 500, 1000, 2000, 5000, 10000];
-        return amounts[Math.floor(Math.random() * amounts.length)];
+        return Math.floor(Math.random() * (100000 - 50 + 1)) + 50;
     }
     generateRandomAutoCashout() {
-        return Number((1.2 + Math.random() * 3.8).toFixed(2));
+        return Number((1.2 + Math.random() * 100).toFixed(2));
     }
     shouldCashout(bet, currentMultiplier) {
         if (bet.autoCashoutValue && currentMultiplier >= bet.autoCashoutValue) {

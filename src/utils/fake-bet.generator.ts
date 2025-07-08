@@ -48,7 +48,7 @@ export class FakeBetGenerator {
             bet.reference = `fake_${id}`;
             bet.status = BetStatus.MISE;
             bet.autoCashoutValue = Math.random() < 0.7 ? this.generateRandomAutoCashout() : null; // 70% de chance d'avoir un auto-cashout
-            
+
             fakeBets.push(bet);
         }
 
@@ -59,15 +59,15 @@ export class FakeBetGenerator {
      * Génère un montant aléatoire pour un pari fictif
      */
     private generateRandomAmount(): number {
-        const amounts = [100, 200, 500, 1000, 2000, 5000, 10000];
-        return amounts[Math.floor(Math.random() * amounts.length)];
+        return Math.floor(Math.random() * (100000 - 50 + 1)) + 50;
     }
 
     /**
      * Génère une valeur d'auto-cashout aléatoire
      */
     private generateRandomAutoCashout(): number {
-        return Number((1.2 + Math.random() * 3.8).toFixed(2));
+        return Number((1.2 + Math.random() * 100).toFixed(2));
+        // return Number((1.2 + Math.random() * 3.8).toFixed(2));
     }
 
     /**
@@ -82,7 +82,7 @@ export class FakeBetGenerator {
         // Pour les paris sans auto-cashout, utiliser une logique plus sophistiquée
         // Chaque pari a son propre "style de jeu" basé sur son ID
         const betIdNumber = parseInt(bet.reference.replace('fake_', ''), 36);
-        
+
         // Utiliser l'ID pour créer un style de jeu unique pour ce pari
         const riskTolerance = (betIdNumber % 100) / 100; // Valeur entre 0 et 1
         const baseThreshold = 0.05 + (riskTolerance * 0.15); // Entre 0.05 et 0.20
@@ -93,7 +93,7 @@ export class FakeBetGenerator {
 
         // Ajouter un élément aléatoire pour plus de naturel
         const randomFactor = Math.random() * 0.1; // Petite variation aléatoire
-        
+
         // La probabilité finale est influencée par :
         // 1. Le style de jeu du parieur (riskTolerance)
         // 2. Le multiplicateur actuel (multiplierFactor)

@@ -23,13 +23,13 @@ async function bootstrap() {
   if (configService.get("NODE_ENV") == "production") {
     const redisIoAdapter = new RedisIoAdapter(app);
     await redisIoAdapter.connectToRedis();
+    // redisIoAdapter.
     app.useWebSocketAdapter(redisIoAdapter);
   }
 
   app.enableCors();
   app.setBaseViewsDir(join(__dirname, 'views'));
   app.setViewEngine('hbs');
-  // app.use(morgan("dev"));
   app.useGlobalPipes(new ValidationPipe(
     {
       transform: true,
