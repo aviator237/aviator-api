@@ -48,7 +48,7 @@ export class FakeBetGenerator {
             bet.reference = `fake_${id}`;
             bet.status = BetStatus.MISE;
             bet.autoCashoutValue = Math.random() < 0.7 ? this.generateRandomAutoCashout() : null; // 70% de chance d'avoir un auto-cashout
-
+            console.log(bet.autoCashoutValue);
             fakeBets.push(bet);
         }
 

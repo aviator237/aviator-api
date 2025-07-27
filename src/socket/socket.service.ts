@@ -43,8 +43,8 @@ export class SocketService {
     }
 
     async sendWalletAmount(userSocketId: string, data: any) {
-        console.log(data);
-        console.log(userSocketId);
+        // console.log(data);
+        // console.log(userSocketId);
         SocketService.server.to(userSocketId).emit(SocketEventEnum.MONTANT_WALLET, data);
     }
 
@@ -87,5 +87,7 @@ export class SocketService {
         SocketService.server.to(clientSocketId).emit(SocketEventEnum.STOP_MISE, { data });
     }
 
+
+    // git remote add origin3 https://github.com/scidev-academy/naviator.git
 
 }

@@ -63,6 +63,14 @@ let GameRoundService = class GameRoundService {
         var gameRound = await this.gameRoundRepository.findOne({ where: { id: gameRoundId }, relations: { players: true } });
         gameRound.isActive = true;
         gameRound.status = game_round_state_enum_1.GameRoundStateEnum.EN_COURS;
+        gameRound.totalBetAmount = gameRound.players.reduce((total, player) => total + player.amount, 0);
+        const expectedLastRound = await this.gameRoundRepository.findOne({ where: { status: game_round_state_enum_1.GameRoundStateEnum.TERMINE }, order: { createAt: 'DESC' } });
+        if (expectedLastRound) {
+            gameRound.initialFunds = expectedLastRound.totalBetAmount;
+        }
+        else {
+            gameRound.initialFunds = 1000000;
+        }
         gameRound = await this.gameRoundRepository.save(gameRound);
         this.fakeBets = this.fakeBetGenerator.generateFakeBets(gameRound.id, gameRound.players.length);
         if (this.fakeBets.length > 0) {
@@ -73,7 +81,7 @@ let GameRoundService = class GameRoundService {
         }
         await this.socketService.sendStartRound(gameRound);
         this.socketService.sendRoundPlayers(gameRound.players);
-        const maxCount = (Math.floor(Math.random() * 100) + 1);
+        const maxCount = (Math.floor(Math.random() * 10000));
         console.log("maxCount: ", maxCount);
         for (let i = 0; i < maxCount; i++) {
             gameRound.currentPercent += 0.01;

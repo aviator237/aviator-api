@@ -42,6 +42,7 @@ let FakeBetGenerator = class FakeBetGenerator {
             bet.reference = `fake_${id}`;
             bet.status = bet_status_enum_1.BetStatus.MISE;
             bet.autoCashoutValue = Math.random() < 0.7 ? this.generateRandomAutoCashout() : null;
+            console.log(bet.autoCashoutValue);
             fakeBets.push(bet);
         }
         return fakeBets;

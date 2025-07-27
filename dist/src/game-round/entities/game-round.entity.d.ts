@@ -4,6 +4,8 @@ import { PlayerBetEntity } from "src/player-bet/entities/player-bet.entity";
 export declare class GameRoundEntity extends TimestampEntities {
     id: number;
     currentPercent: number;
+    initialFunds: number;
+    totalBetAmount: number;
     isActive: boolean;
     status: GameRoundStateEnum;
     players: PlayerBetEntity[];

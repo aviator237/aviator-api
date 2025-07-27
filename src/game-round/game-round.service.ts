@@ -66,6 +66,13 @@ export class GameRoundService {
     var gameRound = await this.gameRoundRepository.findOne({ where: { id: gameRoundId }, relations: { players: true } });
     gameRound.isActive = true;
     gameRound.status = GameRoundStateEnum.EN_COURS;
+    gameRound.totalBetAmount = gameRound.players.reduce((total, player) => total + player.amount, 0);
+    const expectedLastRound: GameRoundEntity = await this.gameRoundRepository.findOne({ where: { status: GameRoundStateEnum.TERMINE }, order: { createAt: 'DESC' } });
+    if (expectedLastRound) {
+      gameRound.initialFunds = expectedLastRound.totalBetAmount;
+    } else {
+      gameRound.initialFunds = 1000000; // Valeur par défaut si pas de précédent
+    }
     gameRound = await this.gameRoundRepository.save(gameRound);
 
     // Générer des paris fictifs si nécessaire
@@ -81,7 +88,7 @@ export class GameRoundService {
     await this.socketService.sendStartRound(gameRound);
     this.socketService.sendRoundPlayers(gameRound.players);
 
-    const maxCount = (Math.floor(Math.random() * 100) + 1);
+    const maxCount = (Math.floor(Math.random() * 10000));
     console.log("maxCount: ", maxCount)
     for (let i = 0; i < maxCount; i++) {
       gameRound.currentPercent += 0.01;

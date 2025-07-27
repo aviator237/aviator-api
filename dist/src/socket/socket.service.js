@@ -36,8 +36,6 @@ let SocketService = SocketService_1 = class SocketService {
         SocketService_1.server.to(socket_rooms_enum_1.SocketRoomsEnum.TOUS_LES_UTILISATEURS).emit(socket_event_enum_1.SocketEventEnum.FIN_DU_JEUX, { data });
     }
     async sendWalletAmount(userSocketId, data) {
-        console.log(data);
-        console.log(userSocketId);
         SocketService_1.server.to(userSocketId).emit(socket_event_enum_1.SocketEventEnum.MONTANT_WALLET, data);
     }
     async sendRoundCurrentPercent(currentPercent) {

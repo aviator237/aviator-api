@@ -16,6 +16,17 @@ export class GameRoundEntity extends TimestampEntities {
     })
     currentPercent: number;
 
+    @Column({
+        nullable: false, default: 0
+    })
+    initialFunds: number;
+
+
+    @Column({
+        nullable: false, default: 0
+    })
+    totalBetAmount: number;
+
 
     @Column({
         default: false
