@@ -79,6 +79,10 @@ export class FakeBetGenerator {
             return true;
         }
 
+        if (bet.autoCashoutValue && currentMultiplier < bet.autoCashoutValue) {
+            return false;
+        }
+
         // Pour les paris sans auto-cashout, utiliser une logique plus sophistiquée
         // Chaque pari a son propre "style de jeu" basé sur son ID
         const betIdNumber = parseInt(bet.reference.replace('fake_', ''), 36);
@@ -95,11 +99,12 @@ export class FakeBetGenerator {
         const randomFactor = Math.random() * 0.1; // Petite variation aléatoire
 
         // La probabilité finale est influencée par :
-        // 1. Le style de jeu du parieur (riskTolerance)
+        // 1. Le style de jeu du parieur (riskTolerance)🎁💸💎
         // 2. Le multiplicateur actuel (multiplierFactor)
         // 3. Un élément aléatoire (randomFactor)
-        const cashoutProbability = Math.min(dynamicThreshold + randomFactor, 0.95);
+        const cashoutProbability = Math.min(dynamicThreshold + randomFactor, 0.45) - 0.2;
 
+        // console.log(Math.random() < cashoutProbability)
         return Math.random() < cashoutProbability;
     }
 }

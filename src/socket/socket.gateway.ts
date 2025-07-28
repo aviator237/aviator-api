@@ -49,6 +49,7 @@ export class SocketsGateway implements OnGatewayInit, OnGatewayConnection, OnGat
 
     @SubscribeMessage(SocketEventEnum.MISE_UTILISATEUR)
     async handleUserBet(@MessageBody() createPlayerBetDto: CreatePlayerBetDto): Promise<boolean> {
+        console.info(createPlayerBetDto)
         const result = await this.playerBetService.handleUserBet(createPlayerBetDto)
         console.log(result);
         return result;
@@ -56,22 +57,22 @@ export class SocketsGateway implements OnGatewayInit, OnGatewayConnection, OnGat
 
     @SubscribeMessage(SocketEventEnum.STOP_MISE)
     async handleStopBet(@MessageBody() data: { userId: string, roundId: number, reference: string }): Promise<boolean> {
-        console.log(data);
+        // console.log(data);
         const { userId, roundId, reference } = data;
         const result = await this.playerBetService.handleUserStopBet(userId, roundId, reference)
-        console.log(result);
+        // console.log(result);
         return result;
     }
 
     @SubscribeMessage(SocketEventEnum.ARRET_MISE_EN_ATTENTE)
     async handleStopWaitingBet(@MessageBody() data: { userId: string, reference: string }) {
-        console.log(data);
+        // console.log(data);
         await this.playerBetService.handleUserStopWaitingBet(data.userId, data.reference)
     }
 
     @SubscribeMessage(SocketEventEnum.MONTANT_WALLET)
     async handleWalletAmount(@MessageBody() data: { userId: string }) {
-        console.log(data);
+        // console.log(data);
         const expectedClient = await this.userEntityRepository.findOne({ where: { id: data.userId } });
         if (expectedClient) {
             this.socketService.sendWalletAmount(expectedClient.id, expectedClient.walletAmount);

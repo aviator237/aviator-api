@@ -10,6 +10,8 @@ export declare class PlayerBetService {
     private readonly userRepository;
     private readonly socketService;
     static currentPercent: number;
+    static stopRound: boolean;
+    static totalWinningAmount: number;
     static waitingPlayers: CreatePlayerBetDto[];
     static autoCheckoutPlayers: {
         userId: string;

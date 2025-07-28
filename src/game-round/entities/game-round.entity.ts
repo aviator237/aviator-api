@@ -25,6 +25,12 @@ export class GameRoundEntity extends TimestampEntities {
     @Column({
         nullable: false, default: 0
     })
+    finalFunds: number;
+
+
+    @Column({
+        nullable: false, default: 0
+    })
     totalBetAmount: number;
 
 

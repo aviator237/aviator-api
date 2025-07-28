@@ -50,23 +50,20 @@ let SocketsGateway = class SocketsGateway {
         console.log(`Client connected: ${clientSocketId}`);
     }
     async handleUserBet(createPlayerBetDto) {
+        console.info(createPlayerBetDto);
         const result = await this.playerBetService.handleUserBet(createPlayerBetDto);
         console.log(result);
         return result;
     }
     async handleStopBet(data) {
-        console.log(data);
         const { userId, roundId, reference } = data;
         const result = await this.playerBetService.handleUserStopBet(userId, roundId, reference);
-        console.log(result);
         return result;
     }
     async handleStopWaitingBet(data) {
-        console.log(data);
         await this.playerBetService.handleUserStopWaitingBet(data.userId, data.reference);
     }
     async handleWalletAmount(data) {
-        console.log(data);
         const expectedClient = await this.userEntityRepository.findOne({ where: { id: data.userId } });
         if (expectedClient) {
             this.socketService.sendWalletAmount(expectedClient.id, expectedClient.walletAmount);

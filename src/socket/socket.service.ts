@@ -43,8 +43,6 @@ export class SocketService {
     }
 
     async sendWalletAmount(userSocketId: string, data: any) {
-        // console.log(data);
-        // console.log(userSocketId);
         SocketService.server.to(userSocketId).emit(SocketEventEnum.MONTANT_WALLET, data);
     }
 

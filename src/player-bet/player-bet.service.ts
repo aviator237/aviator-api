@@ -12,6 +12,8 @@ import { CreatePlayerBetDto } from "./dto/create-player-bet.dto";
 @Injectable()
 export class PlayerBetService {
   static currentPercent: number = 1;
+  static stopRound: boolean = false;
+  static totalWinningAmount: number = 0;
   static waitingPlayers: CreatePlayerBetDto[] = [];
 
   // Structure pour stocker les joueurs avec auto-cashout
@@ -150,11 +152,20 @@ export class PlayerBetService {
       return false;
     }
     var winAmount: number = player.amount * PlayerBetService.currentPercent;
+
+    if (PlayerBetService.totalWinningAmount + winAmount >= round.totalBetAmount * 90 / 100) {
+      PlayerBetService.stopRound = true;
+      return false;
+      }
+
     winAmount = parseFloat(winAmount.toFixed(2))
     user.walletAmount += winAmount;
     await this.userRepository.save(user);
     player.status = BetStatus.GAGNE;
     player.winAmount = winAmount;
+
+    PlayerBetService.totalWinningAmount += winAmount;
+
     // Enregistrer le pourcentage auquel le joueur a encaissé
     player.endPercent = PlayerBetService.currentPercent;
     this.socketService.sendWalletAmount(user.id, user.walletAmount);

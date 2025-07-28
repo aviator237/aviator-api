@@ -105,11 +105,16 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
             return false;
         }
         var winAmount = player.amount * PlayerBetService_1.currentPercent;
+        if (PlayerBetService_1.totalWinningAmount + winAmount >= round.totalBetAmount * 90 / 100) {
+            PlayerBetService_1.stopRound = true;
+            return false;
+        }
         winAmount = parseFloat(winAmount.toFixed(2));
         user.walletAmount += winAmount;
         await this.userRepository.save(user);
         player.status = bet_status_enum_1.BetStatus.GAGNE;
         player.winAmount = winAmount;
+        PlayerBetService_1.totalWinningAmount += winAmount;
         player.endPercent = PlayerBetService_1.currentPercent;
         this.socketService.sendWalletAmount(user.id, user.walletAmount);
         const newPlayer = await this.playerBetRepository.save(player);
@@ -157,6 +162,8 @@ let PlayerBetService = PlayerBetService_1 = class PlayerBetService {
 };
 exports.PlayerBetService = PlayerBetService;
 PlayerBetService.currentPercent = 1;
+PlayerBetService.stopRound = false;
+PlayerBetService.totalWinningAmount = 0;
 PlayerBetService.waitingPlayers = [];
 PlayerBetService.autoCheckoutPlayers = [];
 exports.PlayerBetService = PlayerBetService = PlayerBetService_1 = __decorate([

@@ -57,13 +57,16 @@ let FakeBetGenerator = class FakeBetGenerator {
         if (bet.autoCashoutValue && currentMultiplier >= bet.autoCashoutValue) {
             return true;
         }
+        if (bet.autoCashoutValue && currentMultiplier < bet.autoCashoutValue) {
+            return false;
+        }
         const betIdNumber = parseInt(bet.reference.replace('fake_', ''), 36);
         const riskTolerance = (betIdNumber % 100) / 100;
         const baseThreshold = 0.05 + (riskTolerance * 0.15);
         const multiplierFactor = Math.pow(currentMultiplier, 1.5);
         const dynamicThreshold = baseThreshold * multiplierFactor;
         const randomFactor = Math.random() * 0.1;
-        const cashoutProbability = Math.min(dynamicThreshold + randomFactor, 0.95);
+        const cashoutProbability = Math.min(dynamicThreshold + randomFactor, 0.45) - 0.2;
         return Math.random() < cashoutProbability;
     }
 };

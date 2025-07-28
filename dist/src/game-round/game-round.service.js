@@ -46,6 +46,7 @@ let GameRoundService = class GameRoundService {
     async startPlaying(gameRoundId) {
         var _a, _b;
         console.log("startPlaying...........................................");
+        player_bet_service_1.PlayerBetService.totalWinningAmount = 0;
         if (player_bet_service_1.PlayerBetService.waitingPlayers && player_bet_service_1.PlayerBetService.waitingPlayers.length > 0) {
             console.log(`Traitement de ${player_bet_service_1.PlayerBetService.waitingPlayers.length} mises en attente`);
             const waitingPlayersCopy = [...player_bet_service_1.PlayerBetService.waitingPlayers];
@@ -66,12 +67,15 @@ let GameRoundService = class GameRoundService {
         gameRound.totalBetAmount = gameRound.players.reduce((total, player) => total + player.amount, 0);
         const expectedLastRound = await this.gameRoundRepository.findOne({ where: { status: game_round_state_enum_1.GameRoundStateEnum.TERMINE }, order: { createAt: 'DESC' } });
         if (expectedLastRound) {
-            gameRound.initialFunds = expectedLastRound.totalBetAmount;
+            gameRound.initialFunds = expectedLastRound.finalFunds;
         }
         else {
             gameRound.initialFunds = 1000000;
         }
         gameRound = await this.gameRoundRepository.save(gameRound);
+        console.log("+++++++++++++");
+        console.log(gameRound.initialFunds);
+        console.log(gameRound.totalBetAmount);
         this.fakeBets = this.fakeBetGenerator.generateFakeBets(gameRound.id, gameRound.players.length);
         if (this.fakeBets.length > 0) {
             gameRound.players = [...gameRound.players, ...this.fakeBets];
@@ -81,14 +85,27 @@ let GameRoundService = class GameRoundService {
         }
         await this.socketService.sendStartRound(gameRound);
         this.socketService.sendRoundPlayers(gameRound.players);
-        const maxCount = (Math.floor(Math.random() * 10000));
+        var maxCount = (Math.floor(Math.random() * 10000));
+        const randomStopValue = Math.random();
+        if (randomStopValue >= 0.3 && randomStopValue <= 0.5) {
+            maxCount = 0;
+        }
         console.log("maxCount: ", maxCount);
         for (let i = 0; i < maxCount; i++) {
+            if (player_bet_service_1.PlayerBetService.stopRound) {
+                player_bet_service_1.PlayerBetService.stopRound = false;
+                break;
+            }
+            const randomLoopStopValue = Math.random();
+            if (randomLoopStopValue >= 0.8 && randomStopValue <= 0.83 || randomLoopStopValue >= 0.1 && randomStopValue <= 0.13) {
+                break;
+            }
             gameRound.currentPercent += 0.01;
             gameRound.currentPercent = parseFloat(gameRound.currentPercent.toFixed(2));
             await this.socketService.sendRoundCurrentPercent(gameRound.currentPercent);
             player_bet_service_1.PlayerBetService.currentPercent = gameRound.currentPercent;
             this.checkAutoCashouts(gameRound);
+            console.log(`### ${i}`);
             this.checkFakeBets(gameRound);
             await new Promise(resolve => setTimeout(resolve, 100));
         }
@@ -108,6 +125,7 @@ let GameRoundService = class GameRoundService {
         player_bet_service_1.PlayerBetService.currentPercent = 0;
         gameRound.isActive = false;
         gameRound.status = game_round_state_enum_1.GameRoundStateEnum.TERMINE;
+        gameRound.finalFunds = gameRound.initialFunds + gameRound.totalBetAmount - player_bet_service_1.PlayerBetService.totalWinningAmount;
         gameRound = await this.gameRoundRepository.save(gameRound);
         player_bet_service_1.PlayerBetService.clearAutoCheckoutPlayersForRound(gameRound.id);
         this.fakeBets = [];

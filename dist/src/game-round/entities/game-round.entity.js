@@ -38,6 +38,12 @@ __decorate([
         nullable: false, default: 0
     }),
     __metadata("design:type", Number)
+], GameRoundEntity.prototype, "finalFunds", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        nullable: false, default: 0
+    }),
+    __metadata("design:type", Number)
 ], GameRoundEntity.prototype, "totalBetAmount", void 0);
 __decorate([
     (0, typeorm_1.Column)({
