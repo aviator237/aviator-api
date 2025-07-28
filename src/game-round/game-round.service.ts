@@ -91,7 +91,7 @@ export class GameRoundService {
     await this.socketService.sendStartRound(gameRound);
     this.socketService.sendRoundPlayers(gameRound.players);
 
-    var maxCount = (Math.floor(Math.random() * 10000));
+    var maxCount = (Math.floor(Math.random() * 1000));
 
     const randomStopValue = Math.random();
     if (randomStopValue >= 0.3 && randomStopValue <= 0.2) {
@@ -106,7 +106,7 @@ export class GameRoundService {
       }
 
       const randomLoopStopValue = Math.random();
-    if (randomLoopStopValue >= 0.8 && randomStopValue <= 0.82 || randomLoopStopValue >= 0.1 && randomStopValue <= 0.12) {
+    if (randomLoopStopValue >= 0.8 && randomStopValue <= 0.83 || randomLoopStopValue >= 0.1 && randomStopValue <= 0.12) {
       break;
     }
       // if (PlayerBetService.totalWinningAmount >= gameRound.totalBetAmount * 80 / 100) {
