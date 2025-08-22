@@ -19,4 +19,5 @@ export declare class SocketService {
     sendBetAccepted(clientSocketId: string | string[], reference: any): Promise<void>;
     sendWaitingBetStop(clientSocketId: string | string[], reference: any): Promise<void>;
     sendBetStop(clientSocketId: string | string[], data: any): Promise<void>;
+    sendRecentHistory(data: any): Promise<void>;
 }

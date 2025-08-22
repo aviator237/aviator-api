@@ -15,5 +15,6 @@ export enum SocketEventEnum {
     ATTENTE_PROCHAIN_TOUR = 'betWait',
     ARRET_MISE_EN_ATTENTE = 'stopWaitingBet',
     CHANGEMENT_STATUT_PAIEMENT = 'paymentStatusUpdate',
+    RECENT_HISTORY = 'recentHistory',
 
 }

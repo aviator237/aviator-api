@@ -29,6 +29,7 @@ let GameRoundService = class GameRoundService {
         this.playerBetService = playerBetService;
         this.fakeBetGenerator = fakeBetGenerator;
         this.fakeBets = [];
+        this.recentGameRounds = [];
         setTimeout(() => {
             this.createNewRound();
         }, 5000);
@@ -86,6 +87,7 @@ let GameRoundService = class GameRoundService {
         await this.socketService.sendStartRound(gameRound);
         this.socketService.sendRoundPlayers(gameRound.players);
         var maxCount = (Math.floor(Math.random() * 1000));
+        var timerValue = 100;
         const randomStopValue = Math.random();
         if (randomStopValue >= 0.3 && randomStopValue <= 0.2) {
             maxCount = 0;
@@ -97,7 +99,7 @@ let GameRoundService = class GameRoundService {
                 break;
             }
             const randomLoopStopValue = Math.random();
-            if (randomLoopStopValue >= 0.8 && randomStopValue <= 0.83 || randomLoopStopValue >= 0.1 && randomStopValue <= 0.12) {
+            if (randomLoopStopValue >= 0.8 && randomStopValue <= 0.81 || randomLoopStopValue >= 0.1 && randomStopValue <= 0.11) {
                 break;
             }
             gameRound.currentPercent += 0.01;
@@ -107,7 +109,8 @@ let GameRoundService = class GameRoundService {
             this.checkAutoCashouts(gameRound);
             console.log(`### ${i}`);
             this.checkFakeBets(gameRound);
-            await new Promise(resolve => setTimeout(resolve, 100));
+            timerValue -= 0.01;
+            await new Promise(resolve => setTimeout(resolve, timerValue));
         }
         if (gameRound.players && gameRound.players.length > 0) {
             const activePlayers = gameRound.players.filter(player => player.status === bet_status_enum_1.BetStatus.MISE);
@@ -130,6 +133,10 @@ let GameRoundService = class GameRoundService {
         player_bet_service_1.PlayerBetService.clearAutoCheckoutPlayersForRound(gameRound.id);
         this.fakeBets = [];
         await this.socketService.sendEndRound(gameRound);
+        console.log("Round ended");
+        this.sendRecentHistory(gameRound);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        console.log("Creating new round");
         this.createNewRound();
         return gameRound;
     }
@@ -146,8 +153,12 @@ let GameRoundService = class GameRoundService {
             }
         }
     }
-    findAll() {
-        return `This action returns all gameRound`;
+    async sendRecentHistory(lastGameRound) {
+        this.recentGameRounds.push(lastGameRound);
+        if (this.recentGameRounds.length > 30) {
+            this.recentGameRounds.splice(0, 1);
+        }
+        this.socketService.sendRecentHistory(this.recentGameRounds);
     }
     findOne(id) {
         return `This action returns a #${id} gameRound`;

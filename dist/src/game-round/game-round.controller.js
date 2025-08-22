@@ -20,9 +20,6 @@ let GameRoundController = class GameRoundController {
     constructor(gameRoundService) {
         this.gameRoundService = gameRoundService;
     }
-    findAll() {
-        return this.gameRoundService.findAll();
-    }
     findOne(id) {
         return this.gameRoundService.findOne(+id);
     }
@@ -34,12 +31,6 @@ let GameRoundController = class GameRoundController {
     }
 };
 exports.GameRoundController = GameRoundController;
-__decorate([
-    (0, common_1.Get)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], GameRoundController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

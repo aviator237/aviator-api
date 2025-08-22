@@ -56,6 +56,9 @@ exports.AppModule = AppModule = __decorate([
                 entities: ["dist/**/*.entity{.ts,.js}"],
                 synchronize: true,
                 url: MYSQL_ADDON_URI,
+                cache: {
+                    duration: 100
+                },
                 subscribers: ["dist/**/*.subscriber{.ts,.js}"]
             }),
             throttler_1.ThrottlerModule.forRoot([

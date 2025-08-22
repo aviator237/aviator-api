@@ -12,10 +12,10 @@ export class GameRoundController {
   //   return this.gameRoundService.createNewRound(createGameRoundDto);
   // }
 
-  @Get()
-  findAll() {
-    return this.gameRoundService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.gameRoundService.findAll();
+  // }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

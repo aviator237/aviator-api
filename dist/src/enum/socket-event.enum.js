@@ -18,5 +18,6 @@ var SocketEventEnum;
     SocketEventEnum["ATTENTE_PROCHAIN_TOUR"] = "betWait";
     SocketEventEnum["ARRET_MISE_EN_ATTENTE"] = "stopWaitingBet";
     SocketEventEnum["CHANGEMENT_STATUT_PAIEMENT"] = "paymentStatusUpdate";
+    SocketEventEnum["RECENT_HISTORY"] = "recentHistory";
 })(SocketEventEnum || (exports.SocketEventEnum = SocketEventEnum = {}));
 //# sourceMappingURL=socket-event.enum.js.map

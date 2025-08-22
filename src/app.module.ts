@@ -49,6 +49,11 @@ const MYSQL_ADDON_URI = `mysql://${MYSQL_ADDON_USER}:${MYSQL_ADDON_PASSWORD}@${M
       entities: ["dist/**/*.entity{.ts,.js}"],
       synchronize: true,
       url: MYSQL_ADDON_URI,
+      cache: {
+        duration: 100 // 100 milliseconds
+      },
+      // migrations: ["dist/migration/*{.ts,.js}"],
+      //
       subscribers: ["dist/**/*.subscriber{.ts,.js}"]
       // debug: true,
       // migrationsRun: true,

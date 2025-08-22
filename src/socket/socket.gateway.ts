@@ -79,6 +79,14 @@ export class SocketsGateway implements OnGatewayInit, OnGatewayConnection, OnGat
         }
     }
 
+    // @SubscribeMessage(SocketEventEnum.RECENT_HISTORY)
+    // async getRecentHistory(@MessageBody() data: { userId: string }) {
+    //     const expectedClient = await this.userEntityRepository.findOne({ where: { id: data.userId } });
+    //     if (expectedClient) {
+    //         this.socketService.sendRecentHistory(expectedClient.id);
+    //     }
+    // }
+
     async handleDisconnect(@ConnectedSocket() client: Socket) {
         const clientSocketId = client.handshake.query.clientSocketId as string;
         if (clientSocketId) {

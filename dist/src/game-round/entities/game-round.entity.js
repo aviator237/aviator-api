@@ -23,25 +23,30 @@ __decorate([
 ], GameRoundEntity.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        nullable: false, default: 1
+        nullable: false,
+        default: 1,
+        type: "float"
     }),
     __metadata("design:type", Number)
 ], GameRoundEntity.prototype, "currentPercent", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        nullable: false, default: 0
+        nullable: false, default: 0,
+        type: "float"
     }),
     __metadata("design:type", Number)
 ], GameRoundEntity.prototype, "initialFunds", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        nullable: false, default: 0
+        nullable: false, default: 0,
+        type: "float"
     }),
     __metadata("design:type", Number)
 ], GameRoundEntity.prototype, "finalFunds", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        nullable: false, default: 0
+        nullable: false, default: 0,
+        type: "float"
     }),
     __metadata("design:type", Number)
 ], GameRoundEntity.prototype, "totalBetAmount", void 0);

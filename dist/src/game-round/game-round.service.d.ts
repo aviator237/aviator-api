@@ -10,11 +10,12 @@ export declare class GameRoundService {
     private readonly playerBetService;
     private readonly fakeBetGenerator;
     private fakeBets;
+    private recentGameRounds;
     constructor(gameRoundRepository: Repository<GameRoundEntity>, socketService: SocketService, playerBetService: PlayerBetService, fakeBetGenerator: FakeBetGenerator);
     createNewRound(): Promise<GameRoundEntity>;
     private startPlaying;
     private checkFakeBets;
-    findAll(): string;
+    sendRecentHistory(lastGameRound: any): Promise<void>;
     findOne(id: number): string;
     update(id: number, updateGameRoundDto: UpdateGameRoundDto): string;
     remove(id: number): string;

@@ -10,10 +10,12 @@ import { PlayerBetService } from 'src/player-bet/player-bet.service';
 import { BetStatus } from 'src/enum/bet-status.enum';
 import { PlayerBetEntity } from 'src/player-bet/entities/player-bet.entity';
 import { FakeBetGenerator } from 'src/utils/fake-bet.generator';
+import { count } from 'console';
 
 @Injectable()
 export class GameRoundService {
   private fakeBets: PlayerBetEntity[] = [];
+  private recentGameRounds: GameRoundEntity[] = [];
 
   constructor(
     @InjectRepository(GameRoundEntity)
@@ -93,6 +95,7 @@ export class GameRoundService {
 
     var maxCount = (Math.floor(Math.random() * 1000));
 
+    var timerValue: number = 100
     const randomStopValue = Math.random();
     if (randomStopValue >= 0.3 && randomStopValue <= 0.2) {
       maxCount = 0;
@@ -101,17 +104,18 @@ export class GameRoundService {
     console.log("maxCount: ", maxCount)
     for (let i = 0; i < maxCount; i++) {
       if (PlayerBetService.stopRound) {
-      PlayerBetService.stopRound = false;
+        PlayerBetService.stopRound = false;
         break;
       }
 
       const randomLoopStopValue = Math.random();
-    if (randomLoopStopValue >= 0.8 && randomStopValue <= 0.83 || randomLoopStopValue >= 0.1 && randomStopValue <= 0.12) {
-      break;
-    }
+      if (randomLoopStopValue >= 0.8 && randomStopValue <= 0.81 || randomLoopStopValue >= 0.1 && randomStopValue <= 0.11) {
+        break;
+      }
       // if (PlayerBetService.totalWinningAmount >= gameRound.totalBetAmount * 80 / 100) {
       //   break;
       // }
+      // if (gameRound.currentPercent )
       gameRound.currentPercent += 0.01;
       gameRound.currentPercent = parseFloat(gameRound.currentPercent.toFixed(2));
       await this.socketService.sendRoundCurrentPercent(gameRound.currentPercent);
@@ -124,7 +128,8 @@ export class GameRoundService {
       // Vérifier les paris fictifs
       this.checkFakeBets(gameRound);
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      timerValue -= 0.01;
+      await new Promise(resolve => setTimeout(resolve, timerValue));
     }
 
     // Mettre à jour les joueurs qui n'ont pas encaissé (perdants)
@@ -149,13 +154,17 @@ export class GameRoundService {
     gameRound.finalFunds = gameRound.initialFunds + gameRound.totalBetAmount - PlayerBetService.totalWinningAmount;
 
     gameRound = await this.gameRoundRepository.save(gameRound);
-
+    // console.log(gameRound)
     // Nettoyer la liste des auto-cashouts pour ce tour
     PlayerBetService.clearAutoCheckoutPlayersForRound(gameRound.id);
     // Réinitialiser les paris fictifs
     this.fakeBets = [];
 
     await this.socketService.sendEndRound(gameRound);
+    console.log("Round ended");
+    this.sendRecentHistory(gameRound)
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    console.log("Creating new round");
     this.createNewRound();
     return gameRound;
   }
@@ -180,8 +189,12 @@ export class GameRoundService {
     }
   }
 
-  findAll() {
-    return `This action returns all gameRound`;
+  async sendRecentHistory(lastGameRound) {
+    this.recentGameRounds.push(lastGameRound);
+    if (this.recentGameRounds.length > 30) {
+      this.recentGameRounds.splice(0, 1)
+    }
+    this.socketService.sendRecentHistory(this.recentGameRounds);
   }
 
   findOne(id: number) {

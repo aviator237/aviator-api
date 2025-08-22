@@ -86,6 +86,13 @@ export class SocketService {
     }
 
 
+    async sendRecentHistory(data: any) {
+        console.log(data)
+        SocketService.server.to(SocketRoomsEnum.TOUS_LES_UTILISATEURS).emit(SocketEventEnum.RECENT_HISTORY, { data });
+
+    }
+
+
     // git remote add origin3 https://github.com/scidev-academy/naviator.git
 
 }
