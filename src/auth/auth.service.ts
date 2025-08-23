@@ -46,7 +46,7 @@ export class AuthService {
         //     throw new BadRequestException({ "status": userAccountCreateStatus.DUPLICATE_EMAIL });
         // }
 
-        const expectedGodfather: UserEntity = await this.userRepository.findOne({where: [{ referalCode: userData.referalCode }, { specialReferalCode: userData.referalCode }]});
+        
 
         // Verifier s'il n'y a pas encore un utilisateur avec ce numero de telephone
         const expectedUserWithPhone: UserEntity = await this.userRepository.findOneBy({ phoneNumber: userData.phoneNumber });
@@ -67,12 +67,22 @@ export class AuthService {
         const user = this.userRepository.create({
             ...userData
         });
+
+        if (userData.referalCode) {
+        const expectedGodfather: UserEntity = await this.userRepository.findOne({where: [{ referalCode: userData.referalCode }, { specialReferalCode: userData.referalCode }]});
+        if (expectedGodfather) {
+        user.godfather = expectedGodfather;
+            // if (expectedGodfather.role == UserRoleEnum.VIP_USER) {
+            //     expectedGodfather.
+            // }
+        }
+        }
+
         // Generer le salt pour associer au mot de passe
         user.salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, user.salt);
         user.role = UserRoleEnum.USER;
         user.isActive = true;
-        user.godfather = expectedGodfather;
         let newUser: UserEntity = await this.userRepository.save(user);
 
         // Generer un code de parrainage pour l'utilisateur

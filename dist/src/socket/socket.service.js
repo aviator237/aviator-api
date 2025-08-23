@@ -66,7 +66,6 @@ let SocketService = SocketService_1 = class SocketService {
         SocketService_1.server.to(clientSocketId).emit(socket_event_enum_1.SocketEventEnum.STOP_MISE, { data });
     }
     async sendRecentHistory(data) {
-        console.log(data);
         SocketService_1.server.to(socket_rooms_enum_1.SocketRoomsEnum.TOUS_LES_UTILISATEURS).emit(socket_event_enum_1.SocketEventEnum.RECENT_HISTORY, { data });
     }
 };

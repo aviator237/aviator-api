@@ -87,7 +87,7 @@ export class SocketService {
 
 
     async sendRecentHistory(data: any) {
-        console.log(data)
+        // console.log(data)
         SocketService.server.to(SocketRoomsEnum.TOUS_LES_UTILISATEURS).emit(SocketEventEnum.RECENT_HISTORY, { data });
 
     }

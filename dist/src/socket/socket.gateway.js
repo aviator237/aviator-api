@@ -66,7 +66,7 @@ let SocketsGateway = class SocketsGateway {
     async handleWalletAmount(data) {
         const expectedClient = await this.userEntityRepository.findOne({ where: { id: data.userId } });
         if (expectedClient) {
-            this.socketService.sendWalletAmount(expectedClient.id, expectedClient.walletAmount);
+            this.socketService.sendWalletAmount(expectedClient.id, { "walletAmount": expectedClient.walletAmount, "unwithdrawableWalletAmount": expectedClient.unwithdrawableWalletAmount });
         }
     }
     async handleDisconnect(client) {

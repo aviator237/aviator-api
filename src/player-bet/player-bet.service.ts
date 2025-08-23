@@ -59,6 +59,7 @@ export class PlayerBetService {
     if (round.status !== GameRoundStateEnum.INITIALISE) {
       await this.userRepository.save(user);
       this.socketService.sendWalletAmount(user.id, user.walletAmount);
+          this.socketService.sendWalletAmount(user.id, {"walletAmount": user.walletAmount, "unwithdrawableWalletAmount":user.unwithdrawableWalletAmount});
 
       // Ajouter à la liste d'attente
       PlayerBetService.waitingPlayers.push(createPlayerBetDto);
@@ -67,7 +68,8 @@ export class PlayerBetService {
     }
     user.walletAmount -= createPlayerBetDto.amount;
     await this.userRepository.save(user);
-    this.socketService.sendWalletAmount(user.id, user.walletAmount);
+    // this.socketService.sendWalletAmount(user.id, user.walletAmount);
+          this.socketService.sendWalletAmount(user.id, {"walletAmount": user.walletAmount, "unwithdrawableWalletAmount":user.unwithdrawableWalletAmount});
 
     // Créer l'entité PlayerBet
     const playerBet = new PlayerBetEntity();
@@ -168,7 +170,8 @@ export class PlayerBetService {
 
     // Enregistrer le pourcentage auquel le joueur a encaissé
     player.endPercent = PlayerBetService.currentPercent;
-    this.socketService.sendWalletAmount(user.id, user.walletAmount);
+    // this.socketService.sendWalletAmount(user.id, user.walletAmount);
+    this.socketService.sendWalletAmount(user.id, {"walletAmount": user.walletAmount, "unwithdrawableWalletAmount":user.unwithdrawableWalletAmount});
     const newPlayer: PlayerBetEntity = await this.playerBetRepository.save(player);
     this.socketService.sendBetStop(user.id, newPlayer);
     this.socketService.sendPlayerUpdate(newPlayer);

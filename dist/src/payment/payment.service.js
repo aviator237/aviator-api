@@ -199,18 +199,18 @@ let PaymentService = class PaymentService {
                     expectedPayment.user.walletAmount += expectedPayment.amount;
                     this.userEntityRepository.save(expectedPayment.user);
                     await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
-                    await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+                    await socketService.sendWalletAmount(expectedPayment.user.id, { "walletAmount": expectedPayment.user.walletAmount, "unwithdrawableWalletAmount": expectedPayment.user.unwithdrawableWalletAmount });
                     break;
                 case payment_event_enum_1.NotchPayPaymentEvent.TRANSFERT_COMPLETE:
                     await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
-                    await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+                    await socketService.sendWalletAmount(expectedPayment.user.id, { "walletAmount": expectedPayment.user.walletAmount, "unwithdrawableWalletAmount": expectedPayment.user.unwithdrawableWalletAmount });
                     this.userEntityRepository.save(expectedPayment.user);
                     break;
                 case payment_event_enum_1.NotchPayPaymentEvent.TRANSFERT_ECHOUE:
                     expectedPayment.user.walletAmount += expectedPayment.amount;
                     this.userEntityRepository.save(expectedPayment.user);
                     await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
-                    await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+                    await socketService.sendWalletAmount(expectedPayment.user.id, { "walletAmount": expectedPayment.user.walletAmount, "unwithdrawableWalletAmount": expectedPayment.user.unwithdrawableWalletAmount });
                     break;
                 case payment_event_enum_1.NotchPayPaymentEvent.PAYMENT_ECHOUE:
                     await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
@@ -219,7 +219,7 @@ let PaymentService = class PaymentService {
                     expectedPayment.user.walletAmount -= expectedPayment.amount;
                     this.userEntityRepository.save(expectedPayment.user);
                     await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
-                    await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+                    await socketService.sendWalletAmount(expectedPayment.user.id, { "walletAmount": expectedPayment.user.walletAmount, "unwithdrawableWalletAmount": expectedPayment.user.unwithdrawableWalletAmount });
                     break;
                 default:
                     break;

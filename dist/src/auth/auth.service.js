@@ -49,7 +49,6 @@ let AuthService = class AuthService {
         var _a;
         console.log("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
         const status = user_account_create_status_enum_1.userAccountCreateStatus.ACCOUNT_SUCCESSFUL_CREATE;
-        const expectedGodfather = await this.userRepository.findOne({ where: [{ referalCode: userData.referalCode }, { specialReferalCode: userData.referalCode }] });
         const expectedUserWithPhone = await this.userRepository.findOneBy({ phoneNumber: userData.phoneNumber });
         if (expectedUserWithPhone) {
             throw new common_1.BadRequestException({ "status": user_account_create_status_enum_1.userAccountCreateStatus.DUPLICATE_PHONE_NUMBER });
@@ -65,11 +64,16 @@ let AuthService = class AuthService {
         }
         (_a = userData.lang) !== null && _a !== void 0 ? _a : (userData.lang = user_lang_enum_1.UserLangEnum.FRANCAIS);
         const user = this.userRepository.create(Object.assign({}, userData));
+        if (userData.referalCode) {
+            const expectedGodfather = await this.userRepository.findOne({ where: [{ referalCode: userData.referalCode }, { specialReferalCode: userData.referalCode }] });
+            if (expectedGodfather) {
+                user.godfather = expectedGodfather;
+            }
+        }
         user.salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(user.password, user.salt);
         user.role = user_role_enum_1.UserRoleEnum.USER;
         user.isActive = true;
-        user.godfather = expectedGodfather;
         let newUser = await this.userRepository.save(user);
         const randomCode = Math.floor(100 + Math.random() * 90).toString();
         newUser.referalCode = randomCode.toString() + newUser.id.toString().substring(1, 6);

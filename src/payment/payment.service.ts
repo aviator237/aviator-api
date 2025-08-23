@@ -284,19 +284,21 @@ export class PaymentService {
           this.userEntityRepository.save(expectedPayment.user);
 
           // Envoyer l'événement de mise à jour du paiement à l'utilisateur
-            // Envoyer l'événement de mise à jour du paiement
-            await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+          // Envoyer l'événement de mise à jour du paiement
+          await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
 
-            // Envoyer l'événement de mise à jour du montant du portefeuille
-            await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+          // Envoyer l'événement de mise à jour du montant du portefeuille
+          // await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.unwithdrawableWalletAmount);
+          await socketService.sendWalletAmount(expectedPayment.user.id, {"walletAmount": expectedPayment.user.walletAmount, "unwithdrawableWalletAmount": expectedPayment.user.unwithdrawableWalletAmount});
           break;
         case NotchPayPaymentEvent.TRANSFERT_COMPLETE:
           // Envoyer l'événement de mise à jour du paiement à l'utilisateur
-// Envoyer l'événement de mise à jour du paiement
-await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+          // Envoyer l'événement de mise à jour du paiement
+          await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
 
-// Envoyer l'événement de mise à jour du montant du portefeuille
-await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+          // Envoyer l'événement de mise à jour du montant du portefeuille
+          // await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+          await socketService.sendWalletAmount(expectedPayment.user.id, {"walletAmount": expectedPayment.user.walletAmount, "unwithdrawableWalletAmount": expectedPayment.user.unwithdrawableWalletAmount});
 
 
           this.userEntityRepository.save(expectedPayment.user);
@@ -309,7 +311,8 @@ await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.us
           await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
 
           // Envoyer l'événement de mise à jour du montant du portefeuille
-          await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+          await socketService.sendWalletAmount(expectedPayment.user.id, {"walletAmount": expectedPayment.user.walletAmount, "unwithdrawableWalletAmount": expectedPayment.user.unwithdrawableWalletAmount});
+          // await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
 
 
           break;
@@ -323,10 +326,11 @@ await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.us
           this.userEntityRepository.save(expectedPayment.user);
 
             // Envoyer l'événement de mise à jour du paiement
-            await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
+          await socketService.sendPaymentUpdate(expectedPayment.user.id, expectedPayment);
 
-            // Envoyer l'événement de mise à jour du montant du portefeuille
-            await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
+          // Envoyer l'événement de mise à jour du montant du portefeuille
+          await socketService.sendWalletAmount(expectedPayment.user.id, {"walletAmount": expectedPayment.user.walletAmount, "unwithdrawableWalletAmount": expectedPayment.user.unwithdrawableWalletAmount});
+          // await socketService.sendWalletAmount(expectedPayment.user.id, expectedPayment.user.walletAmount);
           break;
         default:
           break;
