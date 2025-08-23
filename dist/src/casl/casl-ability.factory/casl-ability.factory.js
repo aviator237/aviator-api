@@ -24,11 +24,6 @@ let CaslAbilityFactory = class CaslAbilityFactory {
                 can(action_enum_1.Action.Read, user_entity_1.UserEntity, { godfather: { id: user.id } });
             }
             else {
-                if (user.role === user_role_enum_1.UserRoleEnum.COMPANY_ADMIN) {
-                }
-                if (user.role === user_role_enum_1.UserRoleEnum.AGENCY_ADMIN) {
-                    can(action_enum_1.Action.Manage, user_entity_1.UserEntity, { id: user.id });
-                }
             }
         }
         return build({

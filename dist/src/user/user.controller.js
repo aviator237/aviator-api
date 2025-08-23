@@ -76,7 +76,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "userAccountSoftDelete", null);
 __decorate([
-    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.COMPANY_ADMIN, user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
+    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
     (0, common_1.Delete)(":id"),
     __param(0, (0, common_1.Param)("id", new is_valid_object_id_pipe_1.IsValidObjectIdPipe(user_entity_1.UserEntity))),
     __metadata("design:type", Function),
@@ -102,7 +102,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getUserGodDaughters", null);
 __decorate([
-    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.AGENCY_ADMIN, user_role_enum_1.UserRoleEnum.SUPER_ADMIN, user_role_enum_1.UserRoleEnum.COMPANY_ADMIN),
+    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
     (0, common_1.Get)(":id"),
     __param(0, (0, users_decorator_1.User)()),
@@ -123,7 +123,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getUsers", null);
 __decorate([
-    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.SUPER_ADMIN, user_role_enum_1.UserRoleEnum.AGENCY_ADMIN, user_role_enum_1.UserRoleEnum.COMPANY_ADMIN),
+    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
     (0, common_1.Patch)(":id"),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Param)("id", new is_valid_object_id_pipe_1.IsValidObjectIdPipe(user_entity_1.UserEntity))),

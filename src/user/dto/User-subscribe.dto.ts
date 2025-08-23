@@ -13,6 +13,11 @@ export class UserSubscribeDto {
     @IsOptional()
     userName?: string;
 
+    @MaxLength(30)
+    @IsString()
+    @IsOptional()
+    referalCode?: string;
+
     @IsString()
     @IsNotEmpty()
     // @IsStrongPassword()

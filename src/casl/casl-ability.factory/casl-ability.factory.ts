@@ -22,12 +22,12 @@ export class CaslAbilityFactory {
                 can(Action.Manage, UserEntity, { id: user.id });
                 can(Action.Read, UserEntity, { godfather: { id: user.id } });
             } else {
-                if (user.role === UserRoleEnum.COMPANY_ADMIN) {
-                }
+                // if (user.role === UserRoleEnum.COMPANY_ADMIN) {
+                // }
 
-                if (user.role === UserRoleEnum.AGENCY_ADMIN) {
-                    can(Action.Manage, UserEntity, { id: user.id });
-                }
+                // if (user.role === UserRoleEnum.AGENCY_ADMIN) {
+                //     can(Action.Manage, UserEntity, { id: user.id });
+                // }
             }
         }
         return build({

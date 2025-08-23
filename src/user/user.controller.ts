@@ -31,7 +31,7 @@ export class UserController {
         return await this.userService.userSoftDeleteAccount(user.id);
     }
 
-    @Roles(UserRoleEnum.COMPANY_ADMIN, UserRoleEnum.SUPER_ADMIN)
+    @Roles(UserRoleEnum.SUPER_ADMIN)
     @Delete(":id")
     async deleteUser(
         @Param("id", new IsValidObjectIdPipe(UserEntity)) id: string
@@ -59,7 +59,7 @@ export class UserController {
 
 
 
-    @Roles(UserRoleEnum.AGENCY_ADMIN, UserRoleEnum.SUPER_ADMIN, UserRoleEnum.COMPANY_ADMIN)
+    @Roles(UserRoleEnum.SUPER_ADMIN)
     @UseGuards(RolesGuard)
     @Get(":id")
     async getById(
@@ -80,7 +80,7 @@ export class UserController {
         return await this.userService.getUsers(user, page, count)
     }
 
-    @Roles(UserRoleEnum.SUPER_ADMIN, UserRoleEnum.AGENCY_ADMIN, UserRoleEnum.COMPANY_ADMIN)
+    @Roles(UserRoleEnum.SUPER_ADMIN)
     @Patch(":id")
     async userUpdateAccountControl(
         @Body() UpdateUserDto: UpdateUserDto,

@@ -28,6 +28,12 @@ __decorate([
     __metadata("design:type", String)
 ], UserSubscribeDto.prototype, "userName", void 0);
 __decorate([
+    (0, class_validator_1.MaxLength)(30),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UserSubscribeDto.prototype, "referalCode", void 0);
+__decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)

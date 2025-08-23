@@ -113,10 +113,15 @@ export class UserEntity extends TimestampEntities {
 
     @Column({
         nullable: true,
-
     })
     referalCode: string;
 
+    @Column({
+        nullable: true,
+    })
+    specialReferalCode: string;
+
+    
 
     @Column({
         nullable: true
@@ -135,12 +140,23 @@ export class UserEntity extends TimestampEntities {
     })
     isLoggedOut: boolean;
 
+    @Column({
+        default: false
+    })
+    alreadyMakeFirstDeposite: boolean;
+
 
     @Column({
         type: "float",
         default: 0
     })
     walletAmount: number;
+
+    @Column({
+        type: "float",
+        default: 0
+    })
+    unwithdrawableWalletAmount: number;
 
     @ManyToOne(
         () => UserEntity,

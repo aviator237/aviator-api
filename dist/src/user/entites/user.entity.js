@@ -129,6 +129,12 @@ __decorate([
 ], UserEntity.prototype, "referalCode", void 0);
 __decorate([
     (0, typeorm_1.Column)({
+        nullable: true,
+    }),
+    __metadata("design:type", String)
+], UserEntity.prototype, "specialReferalCode", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
         nullable: true
     }),
     __metadata("design:type", Date)
@@ -147,11 +153,24 @@ __decorate([
 ], UserEntity.prototype, "isLoggedOut", void 0);
 __decorate([
     (0, typeorm_1.Column)({
+        default: false
+    }),
+    __metadata("design:type", Boolean)
+], UserEntity.prototype, "alreadyMakeFirstDeposite", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
         type: "float",
         default: 0
     }),
     __metadata("design:type", Number)
 ], UserEntity.prototype, "walletAmount", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: "float",
+        default: 0
+    }),
+    __metadata("design:type", Number)
+], UserEntity.prototype, "unwithdrawableWalletAmount", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => UserEntity, (user) => user.goddaughters),
     (0, typeorm_1.JoinColumn)(),

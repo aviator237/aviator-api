@@ -37,10 +37,13 @@ export declare class AuthService {
             phoneNumber: string;
             notificationId: string;
             referalCode: string;
+            specialReferalCode: string;
             lastLogin: Date;
             isOnline: boolean;
             isLoggedOut: boolean;
+            alreadyMakeFirstDeposite: boolean;
             walletAmount: number;
+            unwithdrawableWalletAmount: number;
             godfather: UserEntity;
             goddaughters: UserEntity[];
             payments: import("../payment/entities/payment.entity").PaymentEntity[];

@@ -20,10 +20,13 @@ export declare class UserEntity extends TimestampEntities {
     phoneNumber: string;
     notificationId: string;
     referalCode: string;
+    specialReferalCode: string;
     lastLogin: Date;
     isOnline: boolean;
     isLoggedOut: boolean;
+    alreadyMakeFirstDeposite: boolean;
     walletAmount: number;
+    unwithdrawableWalletAmount: number;
     godfather: UserEntity;
     goddaughters: UserEntity[];
     payments: PaymentEntity[];
