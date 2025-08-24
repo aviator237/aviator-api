@@ -17,4 +17,5 @@ export declare class PaymentEntity extends TimestampEntities {
     phoneNumber: string;
     amount: number;
     user: UserEntity;
+    trasnferFromOrToUser: UserEntity;
 }

@@ -36,6 +36,9 @@ let PaymentController = class PaymentController {
     async transfer(createTransfertDto, user) {
         return await this.paymentService.createTransfer(createTransfertDto, user);
     }
+    async internalTransfer(amount, recipientNumber, user) {
+        return await this.paymentService.internalTransfer(amount, recipientNumber, user);
+    }
     async handledWebhook(event, data) {
         return await this.paymentService.handledWebhook(event, data);
     }
@@ -72,6 +75,17 @@ __decorate([
         user_entity_1.UserEntity]),
     __metadata("design:returntype", Promise)
 ], PaymentController.prototype, "transfer", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(user_role_enum_1.UserRoleEnum.USER, user_role_enum_1.UserRoleEnum.SUPER_ADMIN),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, common_1.Post)("internal-transfer"),
+    __param(0, (0, common_1.Body)("amount")),
+    __param(1, (0, common_1.Body)("recipientNumber")),
+    __param(2, (0, users_decorator_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, user_entity_1.UserEntity]),
+    __metadata("design:returntype", Promise)
+], PaymentController.prototype, "internalTransfer", null);
 __decorate([
     (0, common_1.Post)("handledWebhook"),
     (0, skip_auth_decorator_1.SkipAuth)(),

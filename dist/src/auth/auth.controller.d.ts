@@ -35,6 +35,7 @@ export declare class AuthController {
             payments: import("../payment/entities/payment.entity").PaymentEntity[];
             bets: import("../player-bet/entities/player-bet.entity").PlayerBetEntity[];
             authLogin: import("./entities/auth-login.entity").AuthLoginEntity;
+            transfers: import("../payment/entities/payment.entity").PaymentEntity[];
             createAt: Date;
             updateAt: Date;
             deleteAt: Date;

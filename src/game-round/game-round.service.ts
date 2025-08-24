@@ -123,7 +123,7 @@ export class GameRoundService {
 
       // Vérifier les cashouts automatiques
       this.checkAutoCashouts(gameRound);
-      console.log(`### ${i}`)
+      // console.log(`### ${i}`)
 
       // Vérifier les paris fictifs
       this.checkFakeBets(gameRound);

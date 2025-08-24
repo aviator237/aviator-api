@@ -37,6 +37,8 @@ const config_1 = require("@nestjs/config");
 const payment_event_enum_1 = require("../enum/payment-event.enum");
 const payment_status_enum_1 = require("../enum/payment-status.enum");
 const socket_service_1 = require("../socket/socket.service");
+const payment_raison_enum_1 = require("../enum/payment-raison.enum");
+const payment_type_enum_1 = require("../enum/payment-type.enum");
 let PaymentService = class PaymentService {
     constructor(paymentRepository, userEntityRepository, uuidService, configService) {
         this.paymentRepository = paymentRepository;
@@ -124,6 +126,44 @@ let PaymentService = class PaymentService {
         }
         catch (error) {
             console.error('Erreur lors de la creation du beneficiaire:', error);
+            throw error;
+        }
+    }
+    async internalTransfer(amount, recipientNumber, user) {
+        try {
+            if (user.walletAmount < amount) {
+                throw new common_1.BadRequestException("Solde insuffisant");
+            }
+            const expectedRecipient = await this.userEntityRepository.findOne({ where: { phoneNumber: recipientNumber } });
+            if (!expectedRecipient) {
+                throw new common_1.BadRequestException("Le bénéficiaire n'existe pas");
+            }
+            const senderPayment = this.paymentRepository.create();
+            senderPayment.amount = amount;
+            senderPayment.isIncoming = false;
+            senderPayment.raison = payment_raison_enum_1.PaymentRaison.TRANSFERT;
+            senderPayment.status = payment_status_enum_1.PaymentStatus.COMPLETE;
+            senderPayment.paymentType = payment_type_enum_1.PaymentType.WALLET;
+            senderPayment.user = user;
+            senderPayment.trasnferFromOrToUser = expectedRecipient;
+            const recipientPayment = this.paymentRepository.create();
+            recipientPayment.amount = amount;
+            recipientPayment.isIncoming = true;
+            recipientPayment.raison = payment_raison_enum_1.PaymentRaison.TRANSFERT;
+            recipientPayment.status = payment_status_enum_1.PaymentStatus.COMPLETE;
+            recipientPayment.paymentType = payment_type_enum_1.PaymentType.WALLET;
+            recipientPayment.user = expectedRecipient;
+            recipientPayment.trasnferFromOrToUser = user;
+            expectedRecipient.walletAmount += amount;
+            user.walletAmount -= amount;
+            await this.paymentRepository.save(recipientPayment);
+            await this.paymentRepository.save(senderPayment);
+            await this.userEntityRepository.save(expectedRecipient);
+            await this.userEntityRepository.save(user);
+            return { "status": "success" };
+        }
+        catch (error) {
+            console.error('Erreur lors du transfetr interne:', error);
             throw error;
         }
     }

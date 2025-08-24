@@ -7,5 +7,6 @@ var PaymentChannel;
     PaymentChannel["ORANGE_MONEY_CM"] = "cm.orange";
     PaymentChannel["MTN_OR_ORANGE_MONEY_CM"] = "cm.mobile";
     PaymentChannel["PAYPAL"] = "paypal";
+    PaymentChannel["NAVIATOR"] = "naviator";
 })(PaymentChannel || (exports.PaymentChannel = PaymentChannel = {}));
 //# sourceMappingURL=payment-channel.enum.js.map

@@ -101,4 +101,11 @@ export class PaymentEntity extends TimestampEntities {
     @JoinColumn()
     user: UserEntity;
 
+    @ManyToOne(
+        () => UserEntity,
+        (user) => user.transfers,
+    )
+    @JoinColumn()
+    trasnferFromOrToUser: UserEntity;
+
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query, ParseIntPipe, Headers, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query, ParseIntPipe, Headers, UseGuards, ParseUUIDPipe } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { User } from 'src/decorators/users.decorator';
@@ -34,6 +34,17 @@ export class PaymentController {
     @User() user: UserEntity
   ) {
     return await this.paymentService.createTransfer(createTransfertDto, user);
+  }
+
+  @Roles(UserRoleEnum.USER, UserRoleEnum.SUPER_ADMIN)
+  @UseGuards(RolesGuard)
+  @Post("internal-transfer")
+  async internalTransfer(
+    @Body("amount") amount: number,
+    @Body("recipientNumber") recipientNumber: string,
+    @User() user: UserEntity
+  ) {
+    return await this.paymentService.internalTransfer(amount, recipientNumber, user);
   }
 
   @Post("handledWebhook")

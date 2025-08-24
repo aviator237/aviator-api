@@ -32,4 +32,5 @@ export declare class UserEntity extends TimestampEntities {
     payments: PaymentEntity[];
     bets: PlayerBetEntity[];
     authLogin: AuthLoginEntity;
+    transfers: PaymentEntity[];
 }

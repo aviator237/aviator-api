@@ -14,6 +14,8 @@ import { WebhookDataDto } from './dto/webhook.data.dto';
 import { CreateTransfertDto } from './dto/create-transfert.dto';
 import { PaymentStatus } from 'src/enum/payment-status.enum';
 import { SocketService } from 'src/socket/socket.service';
+import { PaymentRaison } from 'src/enum/payment-raison.enum';
+import { PaymentType } from 'src/enum/payment-type.enum';
 
 @Injectable()
 export class PaymentService {
@@ -142,6 +144,52 @@ export class PaymentService {
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la creation du beneficiaire:', error);
+      throw error;
+    }
+  }
+
+
+  async internalTransfer(amount: number, recipientNumber: string, user: UserEntity): Promise<any> {
+
+    try {
+      if (user.walletAmount < amount) {
+        throw new BadRequestException("Solde insuffisant");
+      }
+      const expectedRecipient = await this.userEntityRepository.findOne({ where: { phoneNumber: recipientNumber } });
+      if (!expectedRecipient) {
+        throw new BadRequestException("Le bénéficiaire n'existe pas");
+      }
+
+      const senderPayment: PaymentEntity = this.paymentRepository.create();
+      senderPayment.amount = amount;
+      senderPayment.isIncoming = false;
+      senderPayment.raison = PaymentRaison.TRANSFERT;
+      senderPayment.status = PaymentStatus.COMPLETE;
+      senderPayment.paymentType = PaymentType.WALLET;
+      senderPayment.user = user;
+      senderPayment.trasnferFromOrToUser = expectedRecipient;
+
+      const recipientPayment: PaymentEntity = this.paymentRepository.create();
+      recipientPayment.amount = amount;
+      recipientPayment.isIncoming = true;
+      recipientPayment.raison = PaymentRaison.TRANSFERT;
+      recipientPayment.status = PaymentStatus.COMPLETE;
+      recipientPayment.paymentType = PaymentType.WALLET;
+      recipientPayment.user = expectedRecipient;
+      recipientPayment.trasnferFromOrToUser = user;
+
+      expectedRecipient.walletAmount += amount;
+      user.walletAmount -= amount;
+
+      await this.paymentRepository.save(recipientPayment);
+      await this.paymentRepository.save(senderPayment);
+
+      await this.userEntityRepository.save(expectedRecipient);
+      await this.userEntityRepository.save(user);
+      return { "status": "success" };
+
+    } catch (error) {
+      console.error('Erreur lors du transfetr interne:', error);
       throw error;
     }
   }

@@ -193,6 +193,10 @@ __decorate([
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", auth_login_entity_1.AuthLoginEntity)
 ], UserEntity.prototype, "authLogin", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => payment_entity_1.PaymentEntity, (payment) => payment.trasnferFromOrToUser),
+    __metadata("design:type", Array)
+], UserEntity.prototype, "transfers", void 0);
 exports.UserEntity = UserEntity = __decorate([
     (0, typeorm_1.Entity)("myuser")
 ], UserEntity);

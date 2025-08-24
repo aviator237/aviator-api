@@ -49,6 +49,7 @@ export declare class AuthService {
             payments: import("../payment/entities/payment.entity").PaymentEntity[];
             bets: import("../player-bet/entities/player-bet.entity").PlayerBetEntity[];
             authLogin: AuthLoginEntity;
+            transfers: import("../payment/entities/payment.entity").PaymentEntity[];
             createAt: Date;
             updateAt: Date;
             deleteAt: Date;

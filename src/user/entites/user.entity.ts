@@ -190,5 +190,10 @@ export class UserEntity extends TimestampEntities {
     @JoinColumn()
     authLogin: AuthLoginEntity;
 
+    @OneToMany(
+        () => PaymentEntity,
+        (payment) => payment.trasnferFromOrToUser
+    )
+    transfers: PaymentEntity[];
 
 }

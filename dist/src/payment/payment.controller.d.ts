@@ -13,6 +13,7 @@ export declare class PaymentController {
     transfer(createTransfertDto: CreateTransfertDto, user: UserEntity): Promise<{
         result: any;
     }>;
+    internalTransfer(amount: number, recipientNumber: string, user: UserEntity): Promise<any>;
     handledWebhook(event: string, data: any): Promise<{
         status: string;
     }>;

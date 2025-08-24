@@ -22,6 +22,7 @@ export declare class PaymentService {
         result: any;
     }>;
     createRecipiant(channel: string, number: string, phone: string, country: string, name: string, description: string, nestReference: string, email: string): Promise<any>;
+    internalTransfer(amount: number, recipientNumber: string, user: UserEntity): Promise<any>;
     initializeTransfert(recipient: string, amount: number, currency: string, description: string): Promise<any>;
     initializeMobilePayment(phone: string, amount: number, currency: string, description: string, nestReference: string): Promise<any>;
     makePayment(reference: string, channel: string, phone: string): Promise<any>;

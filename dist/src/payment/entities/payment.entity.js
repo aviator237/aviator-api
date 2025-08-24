@@ -110,6 +110,11 @@ __decorate([
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", user_entity_1.UserEntity)
 ], PaymentEntity.prototype, "user", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.UserEntity, (user) => user.transfers),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", user_entity_1.UserEntity)
+], PaymentEntity.prototype, "trasnferFromOrToUser", void 0);
 exports.PaymentEntity = PaymentEntity = __decorate([
     (0, typeorm_1.Entity)("payment")
 ], PaymentEntity);

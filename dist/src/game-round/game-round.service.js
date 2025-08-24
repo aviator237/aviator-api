@@ -107,7 +107,6 @@ let GameRoundService = class GameRoundService {
             await this.socketService.sendRoundCurrentPercent(gameRound.currentPercent);
             player_bet_service_1.PlayerBetService.currentPercent = gameRound.currentPercent;
             this.checkAutoCashouts(gameRound);
-            console.log(`### ${i}`);
             this.checkFakeBets(gameRound);
             timerValue -= 0.01;
             await new Promise(resolve => setTimeout(resolve, timerValue));
